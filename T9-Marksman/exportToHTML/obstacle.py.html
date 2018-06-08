@@ -1,0 +1,44 @@
+<html>
+<head>
+<title>obstacle.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(169,183,198); }
+.s1 { color: rgb(204,120,50); }
+.s2 { color: rgb(104,151,187); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+obstacle.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0"> 
+</span><span class="s1">from </span><span class="s0">vector2d </span><span class="s1">import </span><span class="s0">Vector2D 
+</span><span class="s1">from </span><span class="s0">vector2d </span><span class="s1">import </span><span class="s0">Point2D 
+</span><span class="s1">from </span><span class="s0">graphics </span><span class="s1">import </span><span class="s0">egi</span><span class="s1">, </span><span class="s0">KEY 
+</span><span class="s1">from </span><span class="s0">math </span><span class="s1">import </span><span class="s0">sin</span><span class="s1">, </span><span class="s0">cos</span><span class="s1">, </span><span class="s0">radians 
+</span><span class="s1">from </span><span class="s0">random </span><span class="s1">import </span><span class="s0">random</span><span class="s1">, </span><span class="s0">randrange</span><span class="s1">, </span><span class="s0">uniform 
+</span><span class="s1">from </span><span class="s0">path </span><span class="s1">import </span><span class="s0">Path 
+ 
+ 
+</span><span class="s1">class </span><span class="s0">Obstacle(object): 
+ 
+    </span><span class="s1">def </span><span class="s0">__init__(self</span><span class="s1">, </span><span class="s0">world=</span><span class="s1">None, </span><span class="s0">post=Vector2D(</span><span class="s2">0</span><span class="s1">, </span><span class="s2">0</span><span class="s0">)): 
+ 
+        self.world = world 
+        self.radius = </span><span class="s2">30</span><span class="s0"> 
+        self.pos = post 
+ 
+ 
+    </span><span class="s1">def </span><span class="s0">render(self): 
+        egi.blue_pen() 
+        egi.circle(self.pos</span><span class="s1">, </span><span class="s0">self.radius</span><span class="s1">,  True</span><span class="s0">) 
+ 
+ 
+</span></pre>
+</body>
+</html>

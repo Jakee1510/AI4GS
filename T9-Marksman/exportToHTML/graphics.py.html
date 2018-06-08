@@ -1,0 +1,219 @@
+<html>
+<head>
+<title>graphics.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(98,151,85); font-style: italic; }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(204,120,50); }
+.s3 { color: rgb(128,128,128); }
+.s4 { color: rgb(106,135,89); }
+.s5 { color: rgb(104,151,187); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+graphics.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">'''A simple proceedural style graphics drawing wrapper. 
+ 
+Created for COS30002 AI for Games by Clinton Woodward cwoodward@swin.edu.au 
+ 
+This module creates a simple object named &quot;egi&quot;, which is an instance of the 
+EasyGraphics interface, as well as making the pyglet key codes avaiable as 
+KEY. 
+ 
+Note: This has not been designed for performance! In particular, excessive 
+text drawing will be very expensive. If you need better performance, you 
+should implement opengl code for yourself. 
+ 
+'''</span><span class="s1"> 
+</span><span class="s2">from </span><span class="s1">pyglet.gl </span><span class="s2">import </span><span class="s1">* 
+</span><span class="s2">from </span><span class="s1">pyglet </span><span class="s2">import </span><span class="s1">font</span><span class="s2">, </span><span class="s1">window 
+</span><span class="s3"># from math import cos, sin, pi</span><span class="s1"> 
+ 
+KEY = window.key  </span><span class="s3"># the key codes</span><span class="s1"> 
+ 
+COLOR_NAMES = { 
+    </span><span class="s4">'BLACK'</span><span class="s1">:  (</span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'WHITE'</span><span class="s1">:  (</span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'RED'</span><span class="s1">:    (</span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'GREEN'</span><span class="s1">:  (</span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'BLUE'</span><span class="s1">:   (</span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'GREY'</span><span class="s1">:   (</span><span class="s5">0.6</span><span class="s2">, </span><span class="s5">0.6</span><span class="s2">, </span><span class="s5">0.6</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'PINK'</span><span class="s1">:   (</span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">0.7</span><span class="s2">, </span><span class="s5">0.7</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'YELLOW'</span><span class="s1">: (</span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'ORANGE'</span><span class="s1">: (</span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">0.7</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'PURPLE'</span><span class="s1">: (</span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">0.7</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'BROWN'</span><span class="s1">:  (</span><span class="s5">0.5</span><span class="s2">, </span><span class="s5">0.35</span><span class="s2">,</span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'AQUA'</span><span class="s1">:   (</span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'DARK_GREEN'</span><span class="s1">: (</span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">0.4</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'LIGHT_BLUE'</span><span class="s1">: (</span><span class="s5">0.6</span><span class="s2">, </span><span class="s5">0.6</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'LIGHT_GREY'</span><span class="s1">: (</span><span class="s5">0.8</span><span class="s2">, </span><span class="s5">0.8</span><span class="s2">, </span><span class="s5">0.8</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+    </span><span class="s4">'LIGHT_PINK'</span><span class="s1">: (</span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">0.9</span><span class="s2">, </span><span class="s5">0.9</span><span class="s2">, </span><span class="s5">1</span><span class="s1">) 
+} 
+ 
+ 
+</span><span class="s2">class </span><span class="s1">EasyGraphics(object): 
+ 
+    </span><span class="s2">def </span><span class="s1">__init__(self): 
+        </span><span class="s3"># current &quot;pen&quot; colour of lines</span><span class="s1"> 
+        self.pen_color = (</span><span class="s5">1</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">1.</span><span class="s1">) 
+        self.stroke = </span><span class="s5">1.0  </span><span class="s3"># - thickness the default</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">InitWithPyglet(self</span><span class="s2">, </span><span class="s1">window): 
+        </span><span class="s3"># stuff that needs to be done *after* the pyglet window is created</span><span class="s1"> 
+        self.set_pen_color(self.pen_color) 
+        self.set_stroke(self.stroke) 
+        self.window = window 
+        </span><span class="s3"># prep the text object</span><span class="s1"> 
+        self.text = font.Text(font.load(</span><span class="s4">''</span><span class="s2">, </span><span class="s5">10</span><span class="s1">)</span><span class="s2">, </span><span class="s4">''</span><span class="s2">, </span><span class="s1">color=(</span><span class="s5">1</span><span class="s2">, </span><span class="s5">1</span><span class="s2">, </span><span class="s5">1</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)</span><span class="s2">,</span><span class="s1"> 
+                              valign=</span><span class="s4">'bottom'</span><span class="s2">, </span><span class="s1">halign=</span><span class="s4">'left'</span><span class="s1">) 
+        </span><span class="s3"># prep the quadric object used by glu* functions (circle)</span><span class="s1"> 
+        </span><span class="s3"># styles GLU_LINE, GLU_FILL, GLU_SILHOUETTE, GLU_POINT</span><span class="s1"> 
+        self.qobj = gluNewQuadric() 
+        gluQuadricDrawStyle(self.qobj</span><span class="s2">, </span><span class="s1">GLU_SILHOUETTE) 
+ 
+    </span><span class="s2">def </span><span class="s1">dot(self</span><span class="s2">, </span><span class="s1">x=</span><span class="s5">0</span><span class="s2">, </span><span class="s1">y=</span><span class="s5">0</span><span class="s2">, </span><span class="s1">pos=</span><span class="s2">None, </span><span class="s1">color=</span><span class="s2">None</span><span class="s1">): 
+        </span><span class="s0">''' Draw a single pixel at a given location. will use pos (with x and y 
+            values) if provided. Colour is (R,G,B,A) values 0.0 to 1.0 '''</span><span class="s1"> 
+        </span><span class="s2">if </span><span class="s1">pos </span><span class="s2">is not None</span><span class="s1">: 
+            x</span><span class="s2">, </span><span class="s1">y = pos.x</span><span class="s2">, </span><span class="s1">pos.y 
+        </span><span class="s2">if </span><span class="s1">color </span><span class="s2">is not None</span><span class="s1">: 
+            glColor4f(*color) 
+        glBegin(GL_POINTS)  </span><span class="s3"># draw points (only one!)</span><span class="s1"> 
+        glVertex3f(x</span><span class="s2">, </span><span class="s1">y</span><span class="s2">, </span><span class="s5">0.0</span><span class="s1">) 
+        glEnd() 
+ 
+    </span><span class="s2">def </span><span class="s1">line(self</span><span class="s2">, </span><span class="s1">x1=</span><span class="s5">0</span><span class="s2">, </span><span class="s1">y1=</span><span class="s5">0</span><span class="s2">, </span><span class="s1">x2=</span><span class="s5">0</span><span class="s2">, </span><span class="s1">y2=</span><span class="s5">0</span><span class="s2">, </span><span class="s1">pos1=</span><span class="s2">None, </span><span class="s1">pos2=</span><span class="s2">None</span><span class="s1">): 
+        </span><span class="s0">''' Draw a single line. Either with xy values, or two position (that 
+            contain x and y values). Uses existing colour and stroke values. '''</span><span class="s1"> 
+        </span><span class="s2">if </span><span class="s1">pos1 </span><span class="s2">is not None and </span><span class="s1">pos2 </span><span class="s2">is not None</span><span class="s1">: 
+            x1</span><span class="s2">, </span><span class="s1">y1</span><span class="s2">, </span><span class="s1">x2</span><span class="s2">, </span><span class="s1">y2 = pos1.x</span><span class="s2">, </span><span class="s1">pos1.y</span><span class="s2">, </span><span class="s1">pos2.x</span><span class="s2">, </span><span class="s1">pos2.y 
+        glBegin(GL_LINES) 
+        glVertex2f(x1</span><span class="s2">, </span><span class="s1">y1) 
+        glVertex2f(x2</span><span class="s2">, </span><span class="s1">y2) 
+        glEnd() 
+ 
+    </span><span class="s2">def </span><span class="s1">line_by_pos(self</span><span class="s2">, </span><span class="s1">pos1</span><span class="s2">, </span><span class="s1">pos2): 
+        </span><span class="s0">''' Draw a single line. Either with xy values, or two position (that 
+            contain x and y values). Uses existing colour and stroke values. '''</span><span class="s1"> 
+        x1</span><span class="s2">, </span><span class="s1">y1</span><span class="s2">, </span><span class="s1">x2</span><span class="s2">, </span><span class="s1">y2 = pos1.x</span><span class="s2">, </span><span class="s1">pos1.y</span><span class="s2">, </span><span class="s1">pos2.x</span><span class="s2">, </span><span class="s1">pos2.y 
+        glBegin(GL_LINES) 
+        glVertex2f(x1</span><span class="s2">, </span><span class="s1">y1) 
+        glVertex2f(x2</span><span class="s2">, </span><span class="s1">y2) 
+        glEnd() 
+ 
+    </span><span class="s2">def </span><span class="s1">polyline(self</span><span class="s2">, </span><span class="s1">points): 
+        </span><span class="s2">if </span><span class="s1">len(points) &lt; </span><span class="s5">2</span><span class="s1">: </span><span class="s2">return</span><span class="s1"> 
+        pts = [(p.x</span><span class="s2">, </span><span class="s1">p.y) </span><span class="s2">for </span><span class="s1">p </span><span class="s2">in </span><span class="s1">points]  </span><span class="s3"># convert to list of tuples</span><span class="s1"> 
+        pts = ((GLfloat * </span><span class="s5">2</span><span class="s1">)*len(pts))(*pts)  </span><span class="s3"># convert to GLfloat list</span><span class="s1"> 
+        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT) 
+        glEnableClientState(GL_VERTEX_ARRAY) 
+        glVertexPointer(</span><span class="s5">2</span><span class="s2">, </span><span class="s1">GL_FLOAT</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s1">pts) 
+        glDrawArrays(GL_LINE_STRIP</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s1">len(pts)) 
+        glPopClientAttrib() 
+ 
+    </span><span class="s2">def </span><span class="s1">line_with_arrow(self</span><span class="s2">, </span><span class="s1">v1</span><span class="s2">, </span><span class="s1">v2</span><span class="s2">, </span><span class="s1">size): 
+        norm = v2-v1 
+        norm.normalise() 
+        </span><span class="s3"># calculate where arrow is attached</span><span class="s1"> 
+        xpoint = v2 - (norm * size) 
+        </span><span class="s3"># calculate the two extra points required to make the arrowhead</span><span class="s1"> 
+        ap1 = xpoint + (norm.perp() * </span><span class="s5">0.4 </span><span class="s1">* size) 
+        ap2 = xpoint - (norm.perp() * </span><span class="s5">0.4 </span><span class="s1">* size) 
+        </span><span class="s3"># draw line from start to head crossing point</span><span class="s1"> 
+        glBegin(GL_LINES) 
+        glVertex2f(v1.x</span><span class="s2">, </span><span class="s1">v1.y) 
+        glVertex2f(xpoint.x</span><span class="s2">, </span><span class="s1">xpoint.y) 
+        glEnd() 
+        </span><span class="s3"># draw triangle for head</span><span class="s1"> 
+        self.closed_shape((v2</span><span class="s2">, </span><span class="s1">ap1</span><span class="s2">, </span><span class="s1">ap2)</span><span class="s2">, </span><span class="s1">filled=</span><span class="s2">False</span><span class="s1">) 
+ 
+    </span><span class="s2">def </span><span class="s1">cross(self</span><span class="s2">, </span><span class="s1">pos</span><span class="s2">, </span><span class="s1">diameter): 
+        d = diameter 
+        x</span><span class="s2">, </span><span class="s1">y = pos.x</span><span class="s2">, </span><span class="s1">pos.y 
+        glBegin(GL_LINES) 
+        </span><span class="s3"># TL to BR</span><span class="s1"> 
+        glVertex2f(x-d</span><span class="s2">, </span><span class="s1">y-d) 
+        glVertex2f(x+d</span><span class="s2">, </span><span class="s1">y+d) 
+        </span><span class="s3"># TR to BL</span><span class="s1"> 
+        glVertex2f(x+d</span><span class="s2">, </span><span class="s1">y-d) 
+        glVertex2f(x-d</span><span class="s2">, </span><span class="s1">y+d) 
+        glEnd() 
+ 
+    </span><span class="s2">def </span><span class="s1">rect(self</span><span class="s2">, </span><span class="s1">left</span><span class="s2">, </span><span class="s1">top</span><span class="s2">, </span><span class="s1">right</span><span class="s2">, </span><span class="s1">bottom</span><span class="s2">, </span><span class="s1">filled=</span><span class="s2">False</span><span class="s1">): 
+        </span><span class="s2">if </span><span class="s1">filled: 
+            glBegin(GL_QUADS) 
+        </span><span class="s2">else</span><span class="s1">: 
+            glBegin(GL_LINE_LOOP) 
+        </span><span class="s3"># A single quad - TL to TR to BR to BL (to TL...)</span><span class="s1"> 
+        glVertex2f(left</span><span class="s2">, </span><span class="s1">top) 
+        glVertex2f(right</span><span class="s2">, </span><span class="s1">top) 
+        glVertex2f(right</span><span class="s2">, </span><span class="s1">bottom) 
+        glVertex2f(left</span><span class="s2">, </span><span class="s1">bottom) 
+        glEnd() 
+ 
+    </span><span class="s2">def </span><span class="s1">closed_shape(self</span><span class="s2">, </span><span class="s1">points</span><span class="s2">, </span><span class="s1">filled=</span><span class="s2">False</span><span class="s1">): 
+        </span><span class="s2">if </span><span class="s1">len(points) &lt; </span><span class="s5">2</span><span class="s1">: </span><span class="s2">return</span><span class="s1"> 
+        gl_array_type = GL_POLYGON </span><span class="s2">if </span><span class="s1">filled </span><span class="s2">else </span><span class="s1">GL_LINE_LOOP 
+        </span><span class="s3"># convert points to a list of types, then GLfloat list</span><span class="s1"> 
+        pts = [(p.x</span><span class="s2">, </span><span class="s1">p.y) </span><span class="s2">for </span><span class="s1">p </span><span class="s2">in </span><span class="s1">points] 
+        pts = ((GLfloat * </span><span class="s5">2</span><span class="s1">)*len(pts))(*pts) 
+        </span><span class="s3"># tell GL system about the array of points</span><span class="s1"> 
+        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT) 
+        glEnableClientState(GL_VERTEX_ARRAY) 
+        glVertexPointer(</span><span class="s5">2</span><span class="s2">, </span><span class="s1">GL_FLOAT</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s1">pts) 
+        </span><span class="s3"># draw array of points, and clean up</span><span class="s1"> 
+        glDrawArrays(gl_array_type</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s1">len(pts)) 
+        glPopClientAttrib() 
+ 
+    </span><span class="s2">def </span><span class="s1">circle(self</span><span class="s2">, </span><span class="s1">pos</span><span class="s2">, </span><span class="s1">radius</span><span class="s2">, </span><span class="s1">filled=</span><span class="s2">False, </span><span class="s1">slices=</span><span class="s5">0</span><span class="s1">): 
+        glPushMatrix() 
+        glTranslatef(pos.x</span><span class="s2">, </span><span class="s1">pos.y</span><span class="s2">, </span><span class="s5">0.0</span><span class="s1">) 
+        gluDisk(self.qobj</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s1">radius</span><span class="s2">, </span><span class="s5">32</span><span class="s2">, </span><span class="s5">1</span><span class="s1">)  </span><span class="s3"># default style (filled? line?)</span><span class="s1"> 
+        glPopMatrix() 
+ 
+    </span><span class="s3"># ----- COLOUR/STROKE STUFF -----</span><span class="s1"> 
+    </span><span class="s2">def </span><span class="s1">set_pen_color(self</span><span class="s2">, </span><span class="s1">color=</span><span class="s2">None, </span><span class="s1">name=</span><span class="s2">None</span><span class="s1">): 
+        </span><span class="s2">if </span><span class="s1">name </span><span class="s2">is not None</span><span class="s1">: 
+            color = COLOR_NAMES[name] 
+        self.curr_color = color 
+        glColor4f(*self.curr_color) 
+ 
+    </span><span class="s2">def </span><span class="s1">red_pen(self):    self.set_pen_color(name=</span><span class="s4">'RED'</span><span class="s1">) 
+    </span><span class="s2">def </span><span class="s1">blue_pen(self):   self.set_pen_color(name=</span><span class="s4">'BLUE'</span><span class="s1">) 
+    </span><span class="s2">def </span><span class="s1">green_pen(self):  self.set_pen_color(name=</span><span class="s4">'GREEN'</span><span class="s1">) 
+    </span><span class="s2">def </span><span class="s1">black_pen(self):  self.set_pen_color(name=</span><span class="s4">'BLACK'</span><span class="s1">) 
+    </span><span class="s2">def </span><span class="s1">white_pen(self):  self.set_pen_color(name=</span><span class="s4">'WHITE'</span><span class="s1">) 
+    </span><span class="s2">def </span><span class="s1">grey_pen(self):   self.set_pen_color(name=</span><span class="s4">'GREY'</span><span class="s1">) 
+    </span><span class="s2">def </span><span class="s1">aqua_pen(self):   self.set_pen_color(name=</span><span class="s4">'AQUA'</span><span class="s1">) 
+    </span><span class="s2">def </span><span class="s1">orange_pen(self): self.set_pen_color(name=</span><span class="s4">'ORANGE'</span><span class="s1">) 
+ 
+    </span><span class="s2">def </span><span class="s1">set_stroke(self</span><span class="s2">, </span><span class="s1">stroke): 
+        self.stroke = stroke 
+        glLineWidth(self.stroke) 
+ 
+    </span><span class="s3"># ----- TEXT METHODS -----</span><span class="s1"> 
+    </span><span class="s2">def </span><span class="s1">text_color(self</span><span class="s2">, </span><span class="s1">color=</span><span class="s2">None, </span><span class="s1">name=</span><span class="s2">None</span><span class="s1">): 
+        </span><span class="s0">''' Colour is a tuple (R,G,B,A) with values from 0.0 to 1.0 '''</span><span class="s1"> 
+        </span><span class="s2">if </span><span class="s1">name </span><span class="s2">is not None</span><span class="s1">: 
+            color = COLOR_NAMES[name] 
+        self.text.color = color  </span><span class="s3">#</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">text_at_pos(self</span><span class="s2">, </span><span class="s1">x</span><span class="s2">, </span><span class="s1">y</span><span class="s2">, </span><span class="s1">text): 
+        self.text.text = text 
+        self.text.x = x 
+        self.text.y = self.window.height + y </span><span class="s2">if </span><span class="s1">y &lt; </span><span class="s5">0 </span><span class="s2">else </span><span class="s1">y 
+        self.text.draw() 
+ 
+ 
+</span><span class="s3"># create an instance for anyone to use</span><span class="s1"> 
+egi = EasyGraphics() 
+</span></pre>
+</body>
+</html>

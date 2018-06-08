@@ -1,0 +1,140 @@
+<html>
+<head>
+<title>world.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(98,151,85); font-style: italic; }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(204,120,50); }
+.s3 { color: rgb(104,151,187); }
+.s4 { color: rgb(106,135,89); }
+.s5 { color: rgb(128,128,128); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+world.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">'''A 2d world that supports agents with steering behaviour 
+ 
+Created for COS30002 AI for Games by Clinton Woodward cwoodward@swin.edu.au 
+ 
+'''</span><span class="s1"> 
+ 
+</span><span class="s2">from </span><span class="s1">vector2d </span><span class="s2">import </span><span class="s1">Vector2D 
+</span><span class="s2">from </span><span class="s1">matrix33 </span><span class="s2">import </span><span class="s1">Matrix33 
+</span><span class="s2">from </span><span class="s1">graphics </span><span class="s2">import </span><span class="s1">egi 
+ 
+ 
+ 
+</span><span class="s2">class </span><span class="s1">World(object): 
+    </span><span class="s2">def </span><span class="s1">__init__(self</span><span class="s2">, </span><span class="s1">cx</span><span class="s2">, </span><span class="s1">cy): 
+        self.cx = cx 
+        self.cy = cy 
+        self.target = Vector2D(cx / </span><span class="s3">2</span><span class="s2">, </span><span class="s1">cy / </span><span class="s3">2</span><span class="s1">) 
+        self.obstacle = [] 
+        self.hunter = </span><span class="s2">None</span><span class="s1"> 
+        self.agents = [] 
+        self.paused = </span><span class="s2">True</span><span class="s1"> 
+        self.show_info = </span><span class="s2">True</span><span class="s1"> 
+ 
+        self.marksman = </span><span class="s2">None</span><span class="s1"> 
+        self.hitpoint = </span><span class="s2">None</span><span class="s1"> 
+        self.bullet = [] 
+ 
+        self.cohesion = </span><span class="s3">0.0</span><span class="s1"> 
+        self.separation = </span><span class="s3">0.0</span><span class="s1"> 
+        self.alignment = </span><span class="s3">0.0</span><span class="s1"> 
+        self.radius = </span><span class="s3">10.0</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">update(self</span><span class="s2">, </span><span class="s1">delta): 
+        </span><span class="s2">if not </span><span class="s1">self.paused: 
+            </span><span class="s2">for </span><span class="s1">agent </span><span class="s2">in </span><span class="s1">self.agents: 
+                agent.update(delta) 
+ 
+            self.hitpoint.update(delta) 
+ 
+            self.marksman.update(delta) 
+ 
+            </span><span class="s2">for </span><span class="s1">bullet </span><span class="s2">in </span><span class="s1">self.bullet: 
+                bullet.update(delta) 
+ 
+    </span><span class="s2">def </span><span class="s1">render(self</span><span class="s2">,</span><span class="s1">delta): 
+ 
+ 
+        </span><span class="s2">for </span><span class="s1">agent </span><span class="s2">in </span><span class="s1">self.agents: 
+            agent.render() 
+ 
+        </span><span class="s2">for </span><span class="s1">obstacle </span><span class="s2">in </span><span class="s1">self.obstacle: 
+            obstacle.render() 
+ 
+        self.marksman.render() 
+ 
+        self.hitpoint.render() 
+ 
+        </span><span class="s2">for </span><span class="s1">bullet </span><span class="s2">in </span><span class="s1">self.bullet: 
+            bullet.render() 
+ 
+        </span><span class="s2">if </span><span class="s1">self.show_info: 
+ 
+            infotext = </span><span class="s4">', '</span><span class="s1">.join(set(bullet.mode </span><span class="s2">for </span><span class="s1">bullet </span><span class="s2">in </span><span class="s1">self.bullet)) 
+            egi.white_pen() 
+            egi.text_at_pos(</span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s1">infotext) 
+ 
+ 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">wrap_around(self</span><span class="s2">, </span><span class="s1">pos): 
+        </span><span class="s0">''' Treat world as a toroidal space. Updates parameter object pos '''</span><span class="s1"> 
+        max_x</span><span class="s2">, </span><span class="s1">max_y = self.cx</span><span class="s2">, </span><span class="s1">self.cy 
+        </span><span class="s2">if </span><span class="s1">pos.x &gt; max_x: 
+            pos.x = pos.x - max_x 
+        </span><span class="s2">elif </span><span class="s1">pos.x &lt; </span><span class="s3">0</span><span class="s1">: 
+            pos.x = max_x - pos.x 
+        </span><span class="s2">if </span><span class="s1">pos.y &gt; max_y: 
+            pos.y = pos.y - max_y 
+        </span><span class="s2">elif </span><span class="s1">pos.y &lt; </span><span class="s3">0</span><span class="s1">: 
+            pos.y = max_y - pos.y 
+ 
+    </span><span class="s2">def </span><span class="s1">transform_points(self</span><span class="s2">, </span><span class="s1">points</span><span class="s2">, </span><span class="s1">pos</span><span class="s2">, </span><span class="s1">forward</span><span class="s2">, </span><span class="s1">side</span><span class="s2">, </span><span class="s1">scale): 
+        </span><span class="s0">''' Transform the given list of points, using the provided position, 
+            direction and scale, to object world space. '''</span><span class="s1"> 
+        </span><span class="s5"># make a copy of original points (so we don't trash them)</span><span class="s1"> 
+        wld_pts = [pt.copy() </span><span class="s2">for </span><span class="s1">pt </span><span class="s2">in </span><span class="s1">points] 
+        </span><span class="s5"># create a transformation matrix to perform the operations</span><span class="s1"> 
+        mat = Matrix33() 
+        </span><span class="s5"># scale,</span><span class="s1"> 
+        mat.scale_update(scale.x</span><span class="s2">, </span><span class="s1">scale.y) 
+        </span><span class="s5"># rotate</span><span class="s1"> 
+        mat.rotate_by_vectors_update(forward</span><span class="s2">, </span><span class="s1">side) 
+        </span><span class="s5"># and translate</span><span class="s1"> 
+        mat.translate_update(pos.x</span><span class="s2">, </span><span class="s1">pos.y) 
+        </span><span class="s5"># now transform all the points (vertices)</span><span class="s1"> 
+        mat.transform_vector2d_list(wld_pts) 
+        </span><span class="s5"># done</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">wld_pts 
+ 
+    </span><span class="s2">def </span><span class="s1">transform_point(self</span><span class="s2">, </span><span class="s1">point</span><span class="s2">, </span><span class="s1">pos</span><span class="s2">, </span><span class="s1">forward</span><span class="s2">, </span><span class="s1">side): 
+        </span><span class="s0">''' Transform the given single point, using the provided position, 
+        and direction (forward and side unit vectors), to object world space. '''</span><span class="s1"> 
+        </span><span class="s5"># make a copy of the original point (so we don't trash it)</span><span class="s1"> 
+        wld_pt = point.copy() 
+        </span><span class="s5"># create a transformation matrix to perform the operations</span><span class="s1"> 
+        mat = Matrix33() 
+        </span><span class="s5"># rotate</span><span class="s1"> 
+        mat.rotate_by_vectors_update(forward</span><span class="s2">, </span><span class="s1">side) 
+        </span><span class="s5"># and translate</span><span class="s1"> 
+        mat.translate_update(pos.x</span><span class="s2">, </span><span class="s1">pos.y) 
+        </span><span class="s5"># now transform the point (in place)</span><span class="s1"> 
+        mat.transform_vector2d(wld_pt) 
+        </span><span class="s5"># done</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">wld_pt 
+ 
+ 
+</span></pre>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<html>
+<head>
+<title>point2d.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(98,151,85); font-style: italic; }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(204,120,50); }
+.s3 { color: rgb(106,135,89); }
+.s4 { color: rgb(104,151,187); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+point2d.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">'''2D Point 
+ 
+Created for COS30002 AI for Games by Clinton Woodward cwoodward@swin.edu.au 
+'''</span><span class="s1"> 
+ 
+ 
+</span><span class="s2">class </span><span class="s1">Point2D(object): 
+ 
+    __slots__ = (</span><span class="s3">'x'</span><span class="s2">, </span><span class="s3">'y'</span><span class="s1">) 
+ 
+    </span><span class="s2">def </span><span class="s1">__init__(self</span><span class="s2">, </span><span class="s1">x=</span><span class="s4">0.0</span><span class="s2">, </span><span class="s1">y=</span><span class="s4">0.0</span><span class="s1">): 
+        self.x = x 
+        self.y = y 
+ 
+    </span><span class="s2">def </span><span class="s1">copy(self): 
+        </span><span class="s2">return </span><span class="s1">Point2D(self.x</span><span class="s2">, </span><span class="s1">self.y) 
+ 
+    </span><span class="s2">def </span><span class="s1">__str__(self): 
+        </span><span class="s2">return </span><span class="s3">'(%5.2f,%5.2f)' </span><span class="s1">% (self.x</span><span class="s2">, </span><span class="s1">self.y) 
+</span></pre>
+</body>
+</html>

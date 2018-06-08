@@ -1,0 +1,153 @@
+<html>
+<head>
+<title>path.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(98,151,85); font-style: italic; }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(204,120,50); }
+.s3 { color: rgb(104,151,187); }
+.s4 { color: rgb(128,128,128); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+path.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">'''Path container to support easy path following by Agents 
+ 
+Created for COS30002 AI for Games by Clinton Woodward cwoodward@swin.edu.au 
+ 
+'''</span><span class="s1"> 
+ 
+</span><span class="s2">from </span><span class="s1">random </span><span class="s2">import </span><span class="s1">random</span><span class="s2">, </span><span class="s1">uniform 
+</span><span class="s2">from </span><span class="s1">matrix33 </span><span class="s2">import </span><span class="s1">Matrix33 
+</span><span class="s2">from </span><span class="s1">vector2d </span><span class="s2">import </span><span class="s1">Vector2D 
+</span><span class="s2">from </span><span class="s1">graphics </span><span class="s2">import </span><span class="s1">egi 
+ 
+</span><span class="s2">from </span><span class="s1">math </span><span class="s2">import </span><span class="s1">pi 
+ 
+TWO_PI = pi * </span><span class="s3">2.0</span><span class="s1"> 
+ 
+ 
+</span><span class="s2">def </span><span class="s1">Vec2DRotateAroundOrigin(vec</span><span class="s2">, </span><span class="s1">rads): 
+    </span><span class="s0">''' Rotates a vector a given angle (in radians) around the origin. 
+        Note: the vec parameter is altered (does not return a new vector. '''</span><span class="s1"> 
+    mat = Matrix33() 
+    mat.rotate_update(rads) 
+    mat.transform_vector2d(vec) 
+ 
+ 
+</span><span class="s2">class </span><span class="s1">Path(object): 
+    </span><span class="s0">''' Container to hold a number of way points and a cursor to the 
+        current way point. The cursor can be moved to the next way point by 
+        calling set_next_way_pt(). Paths can be open or looped. '''</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">__init__(self</span><span class="s2">, </span><span class="s1">num_pts=</span><span class="s3">0</span><span class="s2">, </span><span class="s1">minx=</span><span class="s3">0</span><span class="s2">, </span><span class="s1">miny=</span><span class="s3">0</span><span class="s2">, </span><span class="s1">maxx=</span><span class="s3">0</span><span class="s2">, </span><span class="s1">maxy=</span><span class="s3">0</span><span class="s2">, </span><span class="s1">looped=</span><span class="s2">False</span><span class="s1">): 
+        </span><span class="s0">''' If number of points (num_pts) is provided, a path of random 
+            non-overlapping waypoints will be created in the region specified 
+            by the min/max x/y values provided. If the path is looped, the last 
+            way point is connected to the first. '''</span><span class="s1"> 
+        self.looped = looped 
+        self._num_pts = num_pts 
+        self._cur_pt_idx = -</span><span class="s3">1</span><span class="s1"> 
+        self._pts = [] 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">current_pt(self): 
+        </span><span class="s0">''' Return the way point of the path indicated by the current point 
+            index. '''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">self._pts[self._cur_pt_idx] 
+ 
+    </span><span class="s2">def </span><span class="s1">inc_current_pt(self): 
+        </span><span class="s0">''' Update the current point to the next in the path list. 
+            Resets to the first point if looped is True. '''</span><span class="s1"> 
+        </span><span class="s2">assert </span><span class="s1">self._num_pts &gt; </span><span class="s3">0</span><span class="s1"> 
+        self._cur_pt_idx += </span><span class="s3">1</span><span class="s1"> 
+        </span><span class="s2">if </span><span class="s1">self.is_finished() </span><span class="s2">and </span><span class="s1">self.looped: 
+            self._cur_pt_idx = -</span><span class="s3">1</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">is_finished(self): 
+        </span><span class="s0">''' Return True if at the end of the path. '''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">self._cur_pt_idx &gt;= self._num_pts - </span><span class="s3">1</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">create_random_path(self</span><span class="s2">, </span><span class="s1">num_pts</span><span class="s2">, </span><span class="s1">minx</span><span class="s2">, </span><span class="s1">miny</span><span class="s2">, </span><span class="s1">maxx</span><span class="s2">, </span><span class="s1">maxy</span><span class="s2">, </span><span class="s1">looped=</span><span class="s2">False</span><span class="s1">): 
+        </span><span class="s0">''' Creates random path within the rectangle described by the 
+            min/max values. Stores and returns path. '''</span><span class="s1"> 
+        self.looped = looped 
+        self.clear() 
+        midX = (maxx + minx) / </span><span class="s3">2.0</span><span class="s1"> 
+        midY = (maxy + miny) / </span><span class="s3">2.0</span><span class="s1"> 
+        smaller = min(midX</span><span class="s2">, </span><span class="s1">midY) 
+        spacing = </span><span class="s3">1188600</span><span class="s1"> 
+ 
+        </span><span class="s2">for </span><span class="s1">i </span><span class="s2">in </span><span class="s1">range(num_pts): 
+           radial_dist = uniform(smaller*</span><span class="s3">0.2</span><span class="s2">, </span><span class="s1">smaller) 
+           temp = Vector2D(radial_dist</span><span class="s2">, </span><span class="s3">0.0</span><span class="s1">) 
+           Vec2DRotateAroundOrigin(temp</span><span class="s2">, </span><span class="s1">i*spacing) 
+           temp.x = </span><span class="s3">450</span><span class="s1"> 
+           temp.y += midY 
+           self._pts.append(temp) 
+ 
+        self._reset()  </span><span class="s4"># reset num_pts and cur_pt_idx</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">self._pts 
+ 
+    </span><span class="s2">def </span><span class="s1">create_hitpoint_path(self): 
+        self.looped = </span><span class="s2">True</span><span class="s1"> 
+        self._pts.append(Vector2D(</span><span class="s3">450</span><span class="s2">, </span><span class="s3">50</span><span class="s1">)) 
+        self._pts.append(Vector2D(</span><span class="s3">450</span><span class="s2">, </span><span class="s3">200</span><span class="s1">)) 
+        self._pts.append(Vector2D(</span><span class="s3">450</span><span class="s2">, </span><span class="s3">450</span><span class="s1">)) 
+ 
+        self._reset() 
+ 
+        </span><span class="s2">return </span><span class="s1">self._pts 
+ 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">add_way_pt(self</span><span class="s2">, </span><span class="s1">new_pt): 
+        </span><span class="s0">''' Add the waypoint to the end of the path.'''</span><span class="s1"> 
+        self._pts.append(new_pt) 
+        self._num_pts += </span><span class="s3">1</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">set_pts(self</span><span class="s2">, </span><span class="s1">path_pts): 
+        </span><span class="s0">''' Replace our internal set of points with the container of points 
+            provided. '''</span><span class="s1"> 
+        self._pts = path_pts 
+        self._reset() 
+ 
+    </span><span class="s2">def </span><span class="s1">_reset(self): 
+        </span><span class="s0">''' Point to the first waypoint and set the limit count based on the 
+            number of points we've been given. '''</span><span class="s1"> 
+        self._cur_pt_idx = </span><span class="s3">0</span><span class="s1"> 
+        self._num_pts = len(self._pts) 
+ 
+    </span><span class="s2">def </span><span class="s1">clear(self): 
+        </span><span class="s0">''' Remove all way points and reset internal counters. '''</span><span class="s1"> 
+        self._pts = [] 
+        self._reset() 
+ 
+    </span><span class="s2">def </span><span class="s1">get_pts(self): 
+        </span><span class="s0">''' Simple wrapper to return a reference to the internal list of 
+            points.'''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">self._pts 
+ 
+    </span><span class="s2">def </span><span class="s1">render(self): 
+        </span><span class="s0">''' Draw the path, open or closed, using the current pen colour. '''</span><span class="s1"> 
+        </span><span class="s4"># draw base line</span><span class="s1"> 
+        egi.blue_pen() 
+        </span><span class="s2">if </span><span class="s1">self.looped: 
+            egi.closed_shape(self._pts) 
+        </span><span class="s2">else</span><span class="s1">: 
+            egi.polyline(self._pts) 
+        </span><span class="s4"># draw current waypoint</span><span class="s1"> 
+        egi.orange_pen() 
+        wp = self.current_pt() 
+        egi.circle(pos=wp</span><span class="s2">, </span><span class="s1">radius=</span><span class="s3">5</span><span class="s2">, </span><span class="s1">slices=</span><span class="s3">32</span><span class="s1">) 
+ 
+</span></pre>
+</body>
+</html>

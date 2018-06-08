@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>Marksman.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(104,151,187); }
+.s3 { color: rgb(128,128,128); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Marksman.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">from </span><span class="s1">vector2d </span><span class="s0">import </span><span class="s1">Vector2D 
+</span><span class="s0">from </span><span class="s1">graphics </span><span class="s0">import </span><span class="s1">egi</span><span class="s0">, </span><span class="s1">KEY 
+</span><span class="s0">from </span><span class="s1">Bullet </span><span class="s0">import </span><span class="s1">Bullet 
+ 
+</span><span class="s0">class </span><span class="s1">Marksman(object): 
+ 
+    </span><span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">world=</span><span class="s0">None</span><span class="s1">): 
+ 
+        self.world = world 
+        self.pos = Vector2D(world.cx / </span><span class="s2">5</span><span class="s0">, </span><span class="s1">world.cy / </span><span class="s2">2</span><span class="s1">) 
+        self.bullet = [] 
+        self.target = self.world.hitpoint 
+ 
+        self.modespeed = </span><span class="s2">1</span><span class="s1"> 
+        self.predictedtarget = Vector2D() 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">update(self</span><span class="s0">, </span><span class="s1">delta): 
+ 
+        self.predictedtarget = self.target.pos + (self.target.vel / self.modespeed * </span><span class="s2">30</span><span class="s1">) + (self.target.accel) * delta 
+ 
+    </span><span class="s0">def </span><span class="s1">render(self): 
+        egi.red_pen() 
+        egi.circle(self.pos</span><span class="s0">, </span><span class="s2">10</span><span class="s0">, True</span><span class="s1">) 
+ 
+        egi.white_pen() 
+        </span><span class="s3">#egi.line_by_pos(self.pos, self.world.hitpoint.pos)</span><span class="s1"> 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">shoot(self): 
+ 
+        self.world.bullet.append(Bullet(self.world </span><span class="s0">,</span><span class="s1">self.predictedtarget</span><span class="s0">, </span><span class="s1">self.pos.copy()</span><span class="s0">, </span><span class="s1">self.mode)) 
+ 
+</span></pre>
+</body>
+</html>

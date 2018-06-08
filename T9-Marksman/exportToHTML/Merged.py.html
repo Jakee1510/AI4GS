@@ -1,0 +1,588 @@
+<html>
+<head>
+<title>Merged.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(128,128,128); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(98,151,85); font-style: italic; }
+.s3 { color: rgb(204,120,50); }
+.s4 { color: rgb(104,151,187); }
+.s5 { color: rgb(106,135,89); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Merged.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0"># MAIN ---------------------------------</span><span class="s1"> 
+ 
+</span><span class="s2">'''Autonomous Agent Movement: Seek, Arrive and Flee 
+ 
+Created for COS30002 AI for Games, Lab 05 
+By Clinton Woodward cwoodward@swin.edu.au 
+ 
+'''</span><span class="s1"> 
+</span><span class="s3">from </span><span class="s1">graphics </span><span class="s3">import </span><span class="s1">egi</span><span class="s3">, </span><span class="s1">KEY 
+</span><span class="s3">from </span><span class="s1">pyglet </span><span class="s3">import </span><span class="s1">window</span><span class="s3">, </span><span class="s1">clock 
+</span><span class="s3">from </span><span class="s1">pyglet.gl </span><span class="s3">import </span><span class="s1">* 
+ 
+</span><span class="s3">from </span><span class="s1">vector2d </span><span class="s3">import </span><span class="s1">Vector2D 
+</span><span class="s3">from </span><span class="s1">world </span><span class="s3">import </span><span class="s1">World 
+</span><span class="s3">from </span><span class="s1">agent </span><span class="s3">import </span><span class="s1">Agent</span><span class="s3">, </span><span class="s1">AGENT_MODES  </span><span class="s0"># Agent with seek, arrive, flee and pursuit</span><span class="s1"> 
+ 
+ 
+</span><span class="s3">def </span><span class="s1">on_mouse_press(x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">button</span><span class="s3">, </span><span class="s1">modifiers): 
+    </span><span class="s3">if </span><span class="s1">button == </span><span class="s4">1</span><span class="s1">:  </span><span class="s0"># left</span><span class="s1"> 
+        world.target = Vector2D(x</span><span class="s3">, </span><span class="s1">y) 
+ 
+ 
+</span><span class="s3">def </span><span class="s1">on_key_press(symbol</span><span class="s3">, </span><span class="s1">modifiers): 
+    </span><span class="s3">if </span><span class="s1">symbol == KEY.P: 
+        world.paused = </span><span class="s3">not </span><span class="s1">world.paused 
+    </span><span class="s3">elif </span><span class="s1">symbol </span><span class="s3">in </span><span class="s1">AGENT_MODES: 
+        </span><span class="s3">for </span><span class="s1">agent </span><span class="s3">in </span><span class="s1">world.agents: 
+            agent.mode = AGENT_MODES[symbol] 
+    </span><span class="s0">## LAB 05 TASK 2: Add agent by pressing a key</span><span class="s1"> 
+    </span><span class="s3">elif </span><span class="s1">symbol == KEY.I: 
+        world.agents.append(Agent(world)) 
+ 
+    </span><span class="s0">## LAB 06 TASK 1: Reset all paths to new random ones</span><span class="s1"> 
+    </span><span class="s0"># ...</span><span class="s1"> 
+    </span><span class="s3">elif </span><span class="s1">symbol == KEY.R: 
+        </span><span class="s3">for </span><span class="s1">agent </span><span class="s3">in </span><span class="s1">world.agents: 
+            agent.randomise_path() 
+    </span><span class="s0"># Toggle debug force line info on the agent</span><span class="s1"> 
+    </span><span class="s3">elif </span><span class="s1">symbol == KEY.D: 
+        </span><span class="s3">for </span><span class="s1">agent </span><span class="s3">in </span><span class="s1">world.agents: 
+            agent.show_info = </span><span class="s3">not </span><span class="s1">agent.show_info 
+ 
+    </span><span class="s3">elif </span><span class="s1">symbol == KEY.NUM_ADD: 
+        </span><span class="s3">if </span><span class="s1">modifiers &amp; KEY.MOD_SHIFT: 
+            world.separation += </span><span class="s4">0.10</span><span class="s1"> 
+        </span><span class="s3">elif </span><span class="s1">modifiers &amp; KEY.MOD_ALT: 
+            world.alignment += </span><span class="s4">0.10</span><span class="s1"> 
+        </span><span class="s3">elif </span><span class="s1">modifiers &amp; KEY.MOD_CTRL: 
+            world.cohesion += </span><span class="s4">0.10</span><span class="s1"> 
+        </span><span class="s3">elif </span><span class="s1">modifiers &amp; KEY.MOD_CAPSLOCK: 
+            world.radius += </span><span class="s4">10</span><span class="s1"> 
+ 
+    </span><span class="s3">elif </span><span class="s1">symbol == KEY.NUM_SUBTRACT: 
+        </span><span class="s3">if </span><span class="s1">modifiers &amp; KEY.MOD_SHIFT: 
+            </span><span class="s3">if </span><span class="s1">world.separation &gt;= </span><span class="s4">0.11</span><span class="s1">: 
+                world.separation -= </span><span class="s4">0.10</span><span class="s1"> 
+            </span><span class="s3">else</span><span class="s1">: 
+                world.separation = </span><span class="s4">0</span><span class="s1"> 
+        </span><span class="s3">elif </span><span class="s1">modifiers &amp; KEY.MOD_ALT: 
+            </span><span class="s3">if </span><span class="s1">world.alignment &gt;= </span><span class="s4">0.11</span><span class="s1">: 
+                world.alignment -= </span><span class="s4">0.10</span><span class="s1"> 
+            </span><span class="s3">else</span><span class="s1">: 
+                world.alignment = </span><span class="s4">0</span><span class="s1"> 
+        </span><span class="s3">elif </span><span class="s1">modifiers &amp; KEY.MOD_CTRL: 
+            </span><span class="s3">if </span><span class="s1">world.cohesion &gt;= </span><span class="s4">0.11</span><span class="s1">: 
+                world.cohesion -= </span><span class="s4">0.10</span><span class="s1"> 
+            </span><span class="s3">else</span><span class="s1">: 
+                world.cohesion = </span><span class="s4">0</span><span class="s1"> 
+        </span><span class="s3">elif </span><span class="s1">modifiers &amp; KEY.MOD_CAPSLOCK: 
+            </span><span class="s3">if </span><span class="s1">world.radius &gt;= </span><span class="s4">11</span><span class="s1">: 
+                world.radius -= </span><span class="s4">10</span><span class="s1"> 
+            </span><span class="s3">else</span><span class="s1">: 
+                world.radius = </span><span class="s4">0</span><span class="s1"> 
+ 
+    </span><span class="s3">elif </span><span class="s1">symbol == KEY.N: 
+        world.separation = </span><span class="s4">0</span><span class="s1"> 
+        world. alignment = </span><span class="s4">0</span><span class="s1"> 
+        world.cohesion = </span><span class="s4">0</span><span class="s1"> 
+        world.radius = </span><span class="s4">10</span><span class="s1"> 
+ 
+</span><span class="s3">def </span><span class="s1">on_resize(cx</span><span class="s3">, </span><span class="s1">cy): 
+    world.cx = cx 
+    world.cy = cy 
+ 
+ 
+</span><span class="s3">if </span><span class="s1">__name__ == </span><span class="s5">'__main__'</span><span class="s1">: 
+ 
+    </span><span class="s0"># create a pyglet window and set glOptions</span><span class="s1"> 
+    win = window.Window(width=</span><span class="s4">500</span><span class="s3">, </span><span class="s1">height=</span><span class="s4">500</span><span class="s3">, </span><span class="s1">vsync=</span><span class="s3">True, </span><span class="s1">resizable=</span><span class="s3">True</span><span class="s1">) 
+    glEnable(GL_BLEND) 
+    glBlendFunc(GL_SRC_ALPHA</span><span class="s3">, </span><span class="s1">GL_ONE_MINUS_SRC_ALPHA) 
+    </span><span class="s0"># needed so that egi knows where to draw</span><span class="s1"> 
+    egi.InitWithPyglet(win) 
+    </span><span class="s0"># prep the fps display</span><span class="s1"> 
+    fps_display = clock.ClockDisplay() 
+    </span><span class="s0"># register key and mouse event handlers</span><span class="s1"> 
+    win.push_handlers(on_key_press) 
+    win.push_handlers(on_mouse_press) 
+    win.push_handlers(on_resize) 
+ 
+    </span><span class="s0"># create a world for agents</span><span class="s1"> 
+    world = World(</span><span class="s4">500</span><span class="s3">, </span><span class="s4">500</span><span class="s1">) 
+    </span><span class="s0"># add one agent</span><span class="s1"> 
+    world.agents.append(Agent(world)) 
+    </span><span class="s0"># unpause the world ready for movement</span><span class="s1"> 
+    world.paused = </span><span class="s3">False</span><span class="s1"> 
+ 
+    </span><span class="s3">while not </span><span class="s1">win.has_exit: 
+        win.dispatch_events() 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) 
+        </span><span class="s0"># show nice FPS bottom right (default)</span><span class="s1"> 
+        delta = clock.tick() 
+        world.update(delta) 
+        world.render() 
+        fps_display.draw() 
+        </span><span class="s0"># swap the double buffer</span><span class="s1"> 
+        win.flip() 
+ 
+</span><span class="s0"># MAIN --------------------------</span><span class="s1"> 
+ 
+</span><span class="s0"># AGENT -------------------------</span><span class="s1"> 
+ 
+</span><span class="s5">'''An agent with Seek, Flee, Arrive, Pursuit behaviours 
+ 
+Created for COS30002 AI for Games by Clinton Woodward cwoodward@swin.edu.au 
+ 
+'''</span><span class="s1"> 
+ 
+</span><span class="s3">from </span><span class="s1">vector2d </span><span class="s3">import </span><span class="s1">Vector2D 
+</span><span class="s3">from </span><span class="s1">vector2d </span><span class="s3">import </span><span class="s1">Point2D 
+</span><span class="s3">from </span><span class="s1">graphics </span><span class="s3">import </span><span class="s1">egi</span><span class="s3">, </span><span class="s1">KEY 
+</span><span class="s3">from </span><span class="s1">math </span><span class="s3">import </span><span class="s1">sin</span><span class="s3">, </span><span class="s1">cos</span><span class="s3">, </span><span class="s1">radians 
+</span><span class="s3">from </span><span class="s1">random </span><span class="s3">import </span><span class="s1">random</span><span class="s3">, </span><span class="s1">randrange</span><span class="s3">, </span><span class="s1">uniform 
+</span><span class="s3">from </span><span class="s1">path </span><span class="s3">import </span><span class="s1">Path 
+ 
+AGENT_MODES = { 
+    KEY._1: </span><span class="s5">'seek'</span><span class="s3">,</span><span class="s1"> 
+    KEY._2: </span><span class="s5">'arrive_slow'</span><span class="s3">,</span><span class="s1"> 
+    KEY._3: </span><span class="s5">'arrive_normal'</span><span class="s3">,</span><span class="s1"> 
+    KEY._4: </span><span class="s5">'arrive_fast'</span><span class="s3">,</span><span class="s1"> 
+    KEY._5: </span><span class="s5">'flee'</span><span class="s3">,</span><span class="s1"> 
+    KEY._6: </span><span class="s5">'pursuit'</span><span class="s3">,</span><span class="s1"> 
+    KEY._7: </span><span class="s5">'follow_path'</span><span class="s3">,</span><span class="s1"> 
+    KEY._8: </span><span class="s5">'wander'</span><span class="s3">,</span><span class="s1"> 
+    KEY._9: </span><span class="s5">'neighbourhood'</span><span class="s3">,</span><span class="s1"> 
+} 
+ 
+</span><span class="s3">class </span><span class="s1">Agent(object): 
+ 
+    </span><span class="s0"># NOTE: Class Object (not *instance*) variables!</span><span class="s1"> 
+    DECELERATION_SPEEDS = { 
+        </span><span class="s5">'slow'</span><span class="s1">: </span><span class="s4">0.9</span><span class="s3">,</span><span class="s1"> 
+        </span><span class="s5">'normal'</span><span class="s1">: </span><span class="s4">0.6</span><span class="s3">,</span><span class="s1"> 
+        </span><span class="s5">'fast'</span><span class="s1">: </span><span class="s4">0.1</span><span class="s3">,</span><span class="s1"> 
+        </span><span class="s0">### ADD 'normal' and 'fast' speeds here</span><span class="s1"> 
+        </span><span class="s0"># ...</span><span class="s1"> 
+        </span><span class="s0"># ...</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s3">def </span><span class="s1">__init__(self</span><span class="s3">, </span><span class="s1">world=</span><span class="s3">None, </span><span class="s1">scale=</span><span class="s4">30.0</span><span class="s3">, </span><span class="s1">mass=</span><span class="s4">1.0</span><span class="s3">, </span><span class="s1">mode=</span><span class="s5">'seek'</span><span class="s1">): 
+        </span><span class="s0"># keep a reference to the world object</span><span class="s1"> 
+        self.world = world 
+        self.mode = mode 
+        </span><span class="s0"># where am i and where am i going? random start pos</span><span class="s1"> 
+        dir = radians(random()*</span><span class="s4">360</span><span class="s1">) 
+        self.pos = Vector2D(randrange(world.cx)</span><span class="s3">, </span><span class="s1">randrange(world.cy)) 
+        self.vel = Vector2D() 
+        self.heading = Vector2D(sin(dir)</span><span class="s3">, </span><span class="s1">cos(dir)) 
+        self.side = self.heading.perp() 
+        self.scale = Vector2D(scale</span><span class="s3">, </span><span class="s1">scale)  </span><span class="s0"># easy scaling of agent size</span><span class="s1"> 
+        self.force = Vector2D()  </span><span class="s0"># current steering force</span><span class="s1"> 
+        self.accel = Vector2D() </span><span class="s0"># current acceleration due to force</span><span class="s1"> 
+        self.mass = mass 
+ 
+        </span><span class="s0"># data for drawing this agent</span><span class="s1"> 
+        self.color = </span><span class="s5">'ORANGE'</span><span class="s1"> 
+        self.vehicle_shape = [ 
+            Point2D(-</span><span class="s4">1.0</span><span class="s3">,  </span><span class="s4">0.6</span><span class="s1">)</span><span class="s3">,</span><span class="s1"> 
+            Point2D( </span><span class="s4">1.0</span><span class="s3">,  </span><span class="s4">0.0</span><span class="s1">)</span><span class="s3">,</span><span class="s1"> 
+            Point2D(-</span><span class="s4">1.0</span><span class="s3">, </span><span class="s1">-</span><span class="s4">0.6</span><span class="s1">) 
+        ] 
+        </span><span class="s0">### path to follow?</span><span class="s1"> 
+        </span><span class="s0"># self.path = ??</span><span class="s1"> 
+        self.path = Path() 
+        self.randomise_path() </span><span class="s0"># &lt;-- Doesn’t exist yet but you’ll create it</span><span class="s1"> 
+        self.waypoint_threshold = </span><span class="s4">50.0 </span><span class="s0"># &lt;-- Work out a value for this as you test!</span><span class="s1"> 
+ 
+        </span><span class="s0">### wander details</span><span class="s1"> 
+        </span><span class="s0"># self.wander_?? ...</span><span class="s1"> 
+        </span><span class="s0"># NEW WANDER INFO</span><span class="s1"> 
+        </span><span class="s0"># NEW WANDER INFO</span><span class="s1"> 
+        self.wander_target = Vector2D(</span><span class="s4">1</span><span class="s3">, </span><span class="s4">0</span><span class="s1">) 
+        self.wander_dist = </span><span class="s4">1.0 </span><span class="s1">* scale 
+        self.wander_radius = </span><span class="s4">1.0 </span><span class="s1">* scale 
+        self.wander_jitter = </span><span class="s4">10.0 </span><span class="s1">* scale 
+        self.bRadius = scale 
+        </span><span class="s0"># Force and speed limiting code</span><span class="s1"> 
+        self.max_speed = </span><span class="s4">20.0 </span><span class="s1">* scale 
+        self.max_force = </span><span class="s4">500.0</span><span class="s1"> 
+        </span><span class="s0"># limits?</span><span class="s1"> 
+        self.max_speed = </span><span class="s4">20.0 </span><span class="s1">* scale 
+        </span><span class="s0">## max_force ??</span><span class="s1"> 
+ 
+        </span><span class="s0"># neighbourhood</span><span class="s1"> 
+        self.tagged = </span><span class="s3">False</span><span class="s1"> 
+ 
+        </span><span class="s0"># debug draw info?</span><span class="s1"> 
+        self.show_info = </span><span class="s3">False</span><span class="s1"> 
+ 
+ 
+    </span><span class="s3">def </span><span class="s1">calculate(self</span><span class="s3">, </span><span class="s1">delta): 
+        </span><span class="s0"># calculate the current steering force</span><span class="s1"> 
+        mode = self.mode 
+        </span><span class="s3">if </span><span class="s1">mode == </span><span class="s5">'seek'</span><span class="s1">: 
+            force = self.seek(self.world.target) 
+        </span><span class="s3">elif </span><span class="s1">mode == </span><span class="s5">'arrive_slow'</span><span class="s1">: 
+            force = self.arrive(self.world.target</span><span class="s3">, </span><span class="s5">'slow'</span><span class="s1">) 
+        </span><span class="s3">elif </span><span class="s1">mode == </span><span class="s5">'arrive_normal'</span><span class="s1">: 
+            force = self.arrive(self.world.target</span><span class="s3">, </span><span class="s5">'normal'</span><span class="s1">) 
+        </span><span class="s3">elif </span><span class="s1">mode == </span><span class="s5">'arrive_fast'</span><span class="s1">: 
+            force = self.arrive(self.world.target</span><span class="s3">, </span><span class="s5">'fast'</span><span class="s1">) 
+        </span><span class="s3">elif </span><span class="s1">mode == </span><span class="s5">'flee'</span><span class="s1">: 
+            force = self.flee(self.world.target) 
+        </span><span class="s3">elif </span><span class="s1">mode == </span><span class="s5">'pursuit'</span><span class="s1">: 
+            force = self.pursuit(self.world.hunter) 
+        </span><span class="s3">elif </span><span class="s1">mode == </span><span class="s5">'wander'</span><span class="s1">: 
+            force = self.wander(delta) 
+        </span><span class="s3">elif </span><span class="s1">mode == </span><span class="s5">'follow_path'</span><span class="s1">: 
+            force = self.follow_path(self.path.current_pt()</span><span class="s3">, </span><span class="s5">'fast'</span><span class="s1">) 
+        </span><span class="s3">elif </span><span class="s1">mode == </span><span class="s5">'neighbourhood'</span><span class="s1">: 
+            self.get_neighbours(self.world.agents</span><span class="s3">, </span><span class="s1">self.world.radius) 
+            force = self.wander(delta) 
+            force += self.alignment(self.world.agents) * self.world.alignment 
+            force += self.separation(self.world.agents) * self.world.separation 
+            force += self.cohesion(self.world.agents) * self.world.cohesion 
+ 
+ 
+        </span><span class="s3">else</span><span class="s1">: 
+            force = Vector2D() 
+        self.force = force 
+        </span><span class="s3">return </span><span class="s1">force 
+ 
+    </span><span class="s3">def </span><span class="s1">update(self</span><span class="s3">, </span><span class="s1">delta): 
+        </span><span class="s2">''' update vehicle position and orientation '''</span><span class="s1"> 
+        </span><span class="s0"># calculate and set self.force to be applied</span><span class="s1"> 
+        </span><span class="s0">## force = self.calculate()</span><span class="s1"> 
+        force = self.calculate(delta)  </span><span class="s0"># &lt;-- delta needed for wander</span><span class="s1"> 
+        force.truncate(self.max_force) 
+        </span><span class="s0">## limit force? &lt;-- for wander</span><span class="s1"> 
+        </span><span class="s0"># ...</span><span class="s1"> 
+        </span><span class="s0"># determin the new accelteration</span><span class="s1"> 
+        self.accel = force / self.mass  </span><span class="s0"># not needed if mass = 1.0</span><span class="s1"> 
+        </span><span class="s0"># new velocity</span><span class="s1"> 
+        self.vel += self.accel * delta 
+        </span><span class="s0"># check for limits of new velocity</span><span class="s1"> 
+        self.vel.truncate(self.max_speed) 
+        </span><span class="s0"># update position</span><span class="s1"> 
+        self.pos += self.vel * delta 
+        </span><span class="s0"># update heading is non-zero velocity (moving)</span><span class="s1"> 
+        </span><span class="s3">if </span><span class="s1">self.vel.length_sq() &gt; </span><span class="s4">0.00000001</span><span class="s1">: 
+            self.heading = self.vel.get_normalised() 
+            self.side = self.heading.perp() 
+        </span><span class="s0"># treat world as continuous space - wrap new position if needed</span><span class="s1"> 
+        self.world.wrap_around(self.pos) 
+ 
+        </span><span class="s3">if </span><span class="s1">self.mode == </span><span class="s5">'neighbourhood'</span><span class="s1">: 
+            </span><span class="s3">if </span><span class="s1">self.tagged: 
+                self.color = </span><span class="s5">'GREEN'</span><span class="s1"> 
+            </span><span class="s3">else</span><span class="s1">: 
+                self.color = </span><span class="s5">'ORANGE'</span><span class="s1"> 
+ 
+    </span><span class="s3">def </span><span class="s1">render(self</span><span class="s3">, </span><span class="s1">color=</span><span class="s3">None</span><span class="s1">): 
+        </span><span class="s2">''' Draw the triangle agent with color'''</span><span class="s1"> 
+        </span><span class="s0"># draw the path if it exists and the mode is follow</span><span class="s1"> 
+        </span><span class="s3">if </span><span class="s1">self.mode == </span><span class="s5">'follow_path'</span><span class="s1">: 
+            </span><span class="s0">## ...</span><span class="s1"> 
+            self.path.render() 
+            </span><span class="s3">pass</span><span class="s1"> 
+ 
+        </span><span class="s0"># draw the ship</span><span class="s1"> 
+        egi.set_pen_color(name=self.color) 
+        pts = self.world.transform_points(self.vehicle_shape</span><span class="s3">, </span><span class="s1">self.pos</span><span class="s3">,</span><span class="s1"> 
+                                          self.heading</span><span class="s3">, </span><span class="s1">self.side</span><span class="s3">, </span><span class="s1">self.scale) 
+ 
+        </span><span class="s0"># draw it!</span><span class="s1"> 
+        egi.closed_shape(pts) 
+ 
+        </span><span class="s0"># draw wander info?</span><span class="s1"> 
+        </span><span class="s3">if </span><span class="s1">self.mode == </span><span class="s5">'wander'</span><span class="s1">: 
+            wnd_pos = Vector2D(self.wander_dist</span><span class="s3">, </span><span class="s4">0</span><span class="s1">) 
+            wld_pos = self.world.transform_point(wnd_pos</span><span class="s3">, </span><span class="s1">self.pos</span><span class="s3">, </span><span class="s1">self.heading</span><span class="s3">, </span><span class="s1">self.side) 
+            </span><span class="s0"># draw the wander circle</span><span class="s1"> 
+            egi.green_pen() 
+            egi.circle(wld_pos</span><span class="s3">, </span><span class="s1">self.wander_radius) 
+            </span><span class="s0"># draw the wander target (little circle on the big circle)</span><span class="s1"> 
+            egi.red_pen() 
+            wnd_pos = (self.wander_target + Vector2D(self.wander_dist</span><span class="s3">, </span><span class="s4">0</span><span class="s1">)) 
+            wld_pos = self.world.transform_point(wnd_pos</span><span class="s3">, </span><span class="s1">self.pos</span><span class="s3">, </span><span class="s1">self.heading</span><span class="s3">, </span><span class="s1">self.side) 
+            egi.circle(wld_pos</span><span class="s3">, </span><span class="s4">3</span><span class="s1">) 
+            </span><span class="s0">## ...</span><span class="s1"> 
+            </span><span class="s3">pass</span><span class="s1"> 
+ 
+        </span><span class="s0"># add some handy debug drawing info lines - force and velocity</span><span class="s1"> 
+        </span><span class="s3">if </span><span class="s1">self.show_info: 
+            s = </span><span class="s4">0.5 </span><span class="s0"># &lt;-- scaling factor</span><span class="s1"> 
+            </span><span class="s0"># force</span><span class="s1"> 
+            egi.red_pen() 
+            egi.line_with_arrow(self.pos</span><span class="s3">, </span><span class="s1">self.pos + self.force * s</span><span class="s3">, </span><span class="s4">5</span><span class="s1">) 
+            </span><span class="s0"># velocity</span><span class="s1"> 
+            egi.grey_pen() 
+            egi.line_with_arrow(self.pos</span><span class="s3">, </span><span class="s1">self.pos + self.vel * s</span><span class="s3">, </span><span class="s4">5</span><span class="s1">) 
+            </span><span class="s0"># net (desired) change</span><span class="s1"> 
+            egi.white_pen() 
+            egi.line_with_arrow(self.pos+self.vel * s</span><span class="s3">, </span><span class="s1">self.pos+ (self.force+self.vel) * s</span><span class="s3">, </span><span class="s4">5</span><span class="s1">) 
+            egi.line_with_arrow(self.pos</span><span class="s3">, </span><span class="s1">self.pos+ (self.force+self.vel) * s</span><span class="s3">, </span><span class="s4">5</span><span class="s1">) 
+ 
+    </span><span class="s3">def </span><span class="s1">speed(self): 
+        </span><span class="s3">return </span><span class="s1">self.vel.length() 
+ 
+    </span><span class="s0">#--------------------------------------------------------------------------</span><span class="s1"> 
+ 
+    </span><span class="s3">def </span><span class="s1">seek(self</span><span class="s3">, </span><span class="s1">target_pos): 
+        </span><span class="s2">''' move towards target position '''</span><span class="s1"> 
+        desired_vel = (target_pos - self.pos).normalise() * self.max_speed 
+        </span><span class="s3">return </span><span class="s1">(desired_vel - self.vel) 
+ 
+    </span><span class="s3">def </span><span class="s1">flee(self</span><span class="s3">, </span><span class="s1">hunter_pos): 
+        </span><span class="s2">''' move away from hunter position '''</span><span class="s1"> 
+        desired_vel = (self.pos - hunter_pos).normalise() * self.max_speed 
+</span><span class="s0">## add panic distance (second)</span><span class="s1"> 
+        panic_range = </span><span class="s4">200</span><span class="s1"> 
+</span><span class="s0">## add flee calculations (first)</span><span class="s1"> 
+        to_target = hunter_pos - self.pos 
+        dist = to_target.length() 
+        </span><span class="s3">if </span><span class="s1">dist &gt; panic_range: 
+            </span><span class="s3">return </span><span class="s1">Vector2D() 
+        </span><span class="s3">return </span><span class="s1">(desired_vel - self.vel) 
+ 
+    </span><span class="s3">def </span><span class="s1">arrive(self</span><span class="s3">, </span><span class="s1">target_pos</span><span class="s3">, </span><span class="s1">speed): 
+        </span><span class="s2">''' this behaviour is similar to seek() but it attempts to arrive at 
+            the target position with a zero velocity'''</span><span class="s1"> 
+        decel_rate = self.DECELERATION_SPEEDS[speed] 
+        to_target = target_pos - self.pos 
+        dist = to_target.length() 
+        </span><span class="s3">if </span><span class="s1">dist &gt; </span><span class="s4">0</span><span class="s1">: 
+            </span><span class="s0"># calculate the speed required to reach the target given the</span><span class="s1"> 
+            </span><span class="s0"># desired deceleration rate</span><span class="s1"> 
+            speed = dist / decel_rate 
+            </span><span class="s0"># make sure the velocity does not exceed the max</span><span class="s1"> 
+            speed = min(speed</span><span class="s3">, </span><span class="s1">self.max_speed) 
+            </span><span class="s0"># from here proceed just like Seek except we don't need to</span><span class="s1"> 
+            </span><span class="s0"># normalize the to_target vector because we have already gone to the</span><span class="s1"> 
+            </span><span class="s0"># trouble of calculating its length for dist.</span><span class="s1"> 
+            desired_vel = to_target * (speed / dist) 
+            </span><span class="s3">return </span><span class="s1">(desired_vel - self.vel) 
+        </span><span class="s3">return </span><span class="s1">Vector2D(</span><span class="s4">0</span><span class="s3">, </span><span class="s4">0</span><span class="s1">) 
+ 
+    </span><span class="s3">def </span><span class="s1">pursuit(self</span><span class="s3">, </span><span class="s1">evader): 
+        </span><span class="s2">''' this behaviour predicts where an agent will be in time T and seeks 
+            towards that point to intercept it. '''</span><span class="s1"> 
+        </span><span class="s0">## OPTIONAL EXTRA... pursuit (you'll need something to pursue!)</span><span class="s1"> 
+        </span><span class="s3">return </span><span class="s1">Vector2D() 
+ 
+    </span><span class="s3">def </span><span class="s1">wander(self</span><span class="s3">, </span><span class="s1">delta): 
+        </span><span class="s2">''' Random wandering using a projected jitter circle. '''</span><span class="s1"> 
+        wt = self.wander_target 
+        </span><span class="s0"># this behaviour is dependent on the update rate, so this line must</span><span class="s1"> 
+        </span><span class="s0"># be included when using time independent framerate.</span><span class="s1"> 
+        jitter_tts = self.wander_jitter * delta </span><span class="s0"># this time slice</span><span class="s1"> 
+        </span><span class="s0"># first, add a small random vector to the target's position</span><span class="s1"> 
+        wt += Vector2D(uniform(-</span><span class="s4">1</span><span class="s3">,</span><span class="s4">1</span><span class="s1">) * jitter_tts</span><span class="s3">, </span><span class="s1">uniform(-</span><span class="s4">1</span><span class="s3">,</span><span class="s4">1</span><span class="s1">) * jitter_tts) 
+        </span><span class="s0"># re-project this new vector back on to a unit circle</span><span class="s1"> 
+        wt.normalise() 
+        </span><span class="s0"># increase the length of the vector to the same as the radius</span><span class="s1"> 
+        </span><span class="s0"># of the wander circle</span><span class="s1"> 
+        wt *= self.wander_radius 
+        </span><span class="s0"># move the target into a position WanderDist in front of the agent</span><span class="s1"> 
+        target = wt + Vector2D(self.wander_dist</span><span class="s3">, </span><span class="s4">0</span><span class="s1">) 
+        </span><span class="s0"># project the target into world space</span><span class="s1"> 
+        wld_target = self.world.transform_point(target</span><span class="s3">, </span><span class="s1">self.pos</span><span class="s3">, </span><span class="s1">self.heading</span><span class="s3">, </span><span class="s1">self.side) 
+        </span><span class="s0"># and steer towards it</span><span class="s1"> 
+        </span><span class="s3">return </span><span class="s1">self.seek(wld_target) 
+ 
+ 
+    </span><span class="s3">def </span><span class="s1">randomise_path(self): 
+        cx = self.world.cx </span><span class="s0"># width</span><span class="s1"> 
+        cy = self.world.cy </span><span class="s0"># height</span><span class="s1"> 
+        margin = min(cx</span><span class="s3">, </span><span class="s1">cy) * (</span><span class="s4">1</span><span class="s1">/</span><span class="s4">6</span><span class="s1">) </span><span class="s0"># use this for padding in the next line ...</span><span class="s1"> 
+        self.path.create_random_path(</span><span class="s4">3</span><span class="s3">, </span><span class="s1">margin</span><span class="s3">, </span><span class="s1">margin</span><span class="s3">, </span><span class="s1">cx / </span><span class="s4">2</span><span class="s3">, </span><span class="s1">cy / </span><span class="s4">2</span><span class="s3">, False</span><span class="s1">) </span><span class="s0"># you have to figure out the parameters</span><span class="s1"> 
+ 
+ 
+    </span><span class="s3">def </span><span class="s1">follow_path(self</span><span class="s3">, </span><span class="s1">waypoint_pos</span><span class="s3">, </span><span class="s1">speed): 
+        </span><span class="s3">if </span><span class="s1">self.path.is_finished(): 
+            </span><span class="s3">return </span><span class="s1">self.arrive(self.path.current_pt()</span><span class="s3">, </span><span class="s1">speed) 
+        </span><span class="s3">else</span><span class="s1">: 
+            to_target = self.path.current_pt() - self.pos 
+            dist = to_target.length() 
+            </span><span class="s3">if </span><span class="s1">dist &lt; self.waypoint_threshold: 
+                print(</span><span class="s5">&quot;hi there&quot;</span><span class="s1">) 
+                self.path.inc_current_pt() 
+            </span><span class="s3">return </span><span class="s1">self.seek(self.path.current_pt()) 
+ 
+ 
+    </span><span class="s3">def </span><span class="s1">get_neighbours(self</span><span class="s3">, </span><span class="s1">bots</span><span class="s3">, </span><span class="s1">radius): 
+        </span><span class="s3">for </span><span class="s1">bot </span><span class="s3">in </span><span class="s1">bots: 
+            bot.tagged = </span><span class="s3">False</span><span class="s1"> 
+            dist = Vector2D.distance_sq(self.pos</span><span class="s3">, </span><span class="s1">bot.pos) 
+            </span><span class="s3">if </span><span class="s1">dist &lt; (radius + bot.bRadius)**</span><span class="s4">2</span><span class="s1">: 
+                bot.tagged = </span><span class="s3">True</span><span class="s1"> 
+ 
+    </span><span class="s3">def </span><span class="s1">alignment(self</span><span class="s3">, </span><span class="s1">group): 
+        avgHeading = Vector2D() 
+        avgCount = </span><span class="s4">0</span><span class="s1"> 
+ 
+        </span><span class="s3">for </span><span class="s1">bot </span><span class="s3">in </span><span class="s1">group: 
+            </span><span class="s3">if </span><span class="s1">self != bot </span><span class="s3">and </span><span class="s1">bot.tagged: 
+                avgHeading += bot.pos 
+                avgCount += </span><span class="s4">1</span><span class="s1"> 
+ 
+        </span><span class="s3">if </span><span class="s1">avgCount &gt; </span><span class="s4">0</span><span class="s1">: 
+            avgHeading /= float(avgCount) 
+            avgHeading -= self.heading 
+        </span><span class="s3">return </span><span class="s1">avgHeading 
+ 
+ 
+    </span><span class="s3">def </span><span class="s1">separation(self</span><span class="s3">, </span><span class="s1">group): 
+        centerMass = Vector2D() 
+        steeringForce = Vector2D() 
+        avgCount = </span><span class="s4">0</span><span class="s1"> 
+ 
+        </span><span class="s3">for </span><span class="s1">bot </span><span class="s3">in </span><span class="s1">group: 
+            </span><span class="s3">if </span><span class="s1">self != bot </span><span class="s3">and </span><span class="s1">self.tagged: 
+                centerMass += bot.pos 
+                avgCount += </span><span class="s4">1</span><span class="s1"> 
+ 
+        </span><span class="s3">if </span><span class="s1">avgCount &gt; </span><span class="s4">0</span><span class="s1">: 
+            centerMass /= float(avgCount) 
+            steeringForce += self.flee(centerMass) 
+ 
+        </span><span class="s3">return </span><span class="s1">steeringForce 
+ 
+    </span><span class="s3">def </span><span class="s1">cohesion(self</span><span class="s3">, </span><span class="s1">group): 
+        centerMass = Vector2D() 
+        steeringForce = Vector2D() 
+        avgCount = </span><span class="s4">0</span><span class="s1"> 
+ 
+        </span><span class="s3">for </span><span class="s1">bot </span><span class="s3">in </span><span class="s1">group: 
+            </span><span class="s3">if </span><span class="s1">self != bot </span><span class="s3">and </span><span class="s1">self.tagged: 
+                centerMass += bot.pos 
+                avgCount += </span><span class="s4">1</span><span class="s1"> 
+        </span><span class="s3">if </span><span class="s1">avgCount &gt; </span><span class="s4">0</span><span class="s1">: 
+            centerMass /= float(avgCount) 
+            steeringForce += self.seek(centerMass) 
+ 
+        </span><span class="s3">return </span><span class="s1">steeringForce 
+ 
+</span><span class="s0"># AGENT -------------------------</span><span class="s1"> 
+ 
+ 
+</span><span class="s0"># WORLD -------------------------</span><span class="s1"> 
+ 
+</span><span class="s5">'''A 2d world that supports agents with steering behaviour 
+ 
+Created for COS30002 AI for Games by Clinton Woodward cwoodward@swin.edu.au 
+ 
+'''</span><span class="s1"> 
+ 
+</span><span class="s3">from </span><span class="s1">vector2d </span><span class="s3">import </span><span class="s1">Vector2D 
+</span><span class="s3">from </span><span class="s1">matrix33 </span><span class="s3">import </span><span class="s1">Matrix33 
+</span><span class="s3">from </span><span class="s1">graphics </span><span class="s3">import </span><span class="s1">egi 
+ 
+ 
+</span><span class="s3">class </span><span class="s1">World(object): 
+    </span><span class="s3">def </span><span class="s1">__init__(self</span><span class="s3">, </span><span class="s1">cx</span><span class="s3">, </span><span class="s1">cy): 
+        self.cx = cx 
+        self.cy = cy 
+        self.target = Vector2D(cx / </span><span class="s4">2</span><span class="s3">, </span><span class="s1">cy / </span><span class="s4">2</span><span class="s1">) 
+        self.hunter = </span><span class="s3">None</span><span class="s1"> 
+        self.agents = [] 
+        self.paused = </span><span class="s3">True</span><span class="s1"> 
+        self.show_info = </span><span class="s3">True</span><span class="s1"> 
+ 
+        self.cohesion = </span><span class="s4">0.0</span><span class="s1"> 
+        self.separation = </span><span class="s4">0.0</span><span class="s1"> 
+        self.alignment = </span><span class="s4">0.0</span><span class="s1"> 
+        self.radius = </span><span class="s4">10.0</span><span class="s1"> 
+ 
+    </span><span class="s3">def </span><span class="s1">update(self</span><span class="s3">, </span><span class="s1">delta): 
+        </span><span class="s3">if not </span><span class="s1">self.paused: 
+            </span><span class="s3">for </span><span class="s1">agent </span><span class="s3">in </span><span class="s1">self.agents: 
+                agent.update(delta) 
+ 
+    </span><span class="s3">def </span><span class="s1">render(self): 
+        </span><span class="s3">for </span><span class="s1">agent </span><span class="s3">in </span><span class="s1">self.agents: 
+            agent.render() 
+ 
+        </span><span class="s3">if </span><span class="s1">self.target: 
+            egi.red_pen() 
+            egi.cross(self.target</span><span class="s3">, </span><span class="s4">10</span><span class="s1">) 
+ 
+        </span><span class="s3">if </span><span class="s1">self.show_info: 
+            infotext = </span><span class="s5">': '</span><span class="s1">.join((</span><span class="s5">'Radius'</span><span class="s3">, </span><span class="s1">str(self.radius))) 
+            egi.white_pen() 
+            egi.text_at_pos(</span><span class="s4">0</span><span class="s3">, </span><span class="s4">487</span><span class="s3">, </span><span class="s1">infotext) 
+            infotext = </span><span class="s5">': '</span><span class="s1">.join((</span><span class="s5">'Cohesion'</span><span class="s3">, </span><span class="s1">str(self.cohesion))) 
+            egi.white_pen() 
+            egi.text_at_pos(</span><span class="s4">0</span><span class="s3">, </span><span class="s4">448</span><span class="s3">, </span><span class="s1">infotext) 
+            infotext = </span><span class="s5">': '</span><span class="s1">.join((</span><span class="s5">'Seperation'</span><span class="s3">, </span><span class="s1">str(self.separation))) 
+            egi.white_pen() 
+            egi.text_at_pos(</span><span class="s4">0</span><span class="s3">, </span><span class="s4">461</span><span class="s3">, </span><span class="s1">infotext) 
+            infotext = </span><span class="s5">': '</span><span class="s1">.join((</span><span class="s5">'Alignment'</span><span class="s3">, </span><span class="s1">str(self.alignment))) 
+            egi.white_pen() 
+            egi.text_at_pos(</span><span class="s4">0</span><span class="s3">, </span><span class="s4">474</span><span class="s3">, </span><span class="s1">infotext) 
+            infotext = </span><span class="s5">', '</span><span class="s1">.join(set(agent.mode </span><span class="s3">for </span><span class="s1">agent </span><span class="s3">in </span><span class="s1">self.agents)) 
+            egi.white_pen() 
+            egi.text_at_pos(</span><span class="s4">0</span><span class="s3">, </span><span class="s4">0</span><span class="s3">, </span><span class="s1">infotext) 
+ 
+    </span><span class="s3">def </span><span class="s1">wrap_around(self</span><span class="s3">, </span><span class="s1">pos): 
+        </span><span class="s2">''' Treat world as a toroidal space. Updates parameter object pos '''</span><span class="s1"> 
+        max_x</span><span class="s3">, </span><span class="s1">max_y = self.cx</span><span class="s3">, </span><span class="s1">self.cy 
+        </span><span class="s3">if </span><span class="s1">pos.x &gt; max_x: 
+            pos.x = pos.x - max_x 
+        </span><span class="s3">elif </span><span class="s1">pos.x &lt; </span><span class="s4">0</span><span class="s1">: 
+            pos.x = max_x - pos.x 
+        </span><span class="s3">if </span><span class="s1">pos.y &gt; max_y: 
+            pos.y = pos.y - max_y 
+        </span><span class="s3">elif </span><span class="s1">pos.y &lt; </span><span class="s4">0</span><span class="s1">: 
+            pos.y = max_y - pos.y 
+ 
+    </span><span class="s3">def </span><span class="s1">transform_points(self</span><span class="s3">, </span><span class="s1">points</span><span class="s3">, </span><span class="s1">pos</span><span class="s3">, </span><span class="s1">forward</span><span class="s3">, </span><span class="s1">side</span><span class="s3">, </span><span class="s1">scale): 
+        </span><span class="s2">''' Transform the given list of points, using the provided position, 
+            direction and scale, to object world space. '''</span><span class="s1"> 
+        </span><span class="s0"># make a copy of original points (so we don't trash them)</span><span class="s1"> 
+        wld_pts = [pt.copy() </span><span class="s3">for </span><span class="s1">pt </span><span class="s3">in </span><span class="s1">points] 
+        </span><span class="s0"># create a transformation matrix to perform the operations</span><span class="s1"> 
+        mat = Matrix33() 
+        </span><span class="s0"># scale,</span><span class="s1"> 
+        mat.scale_update(scale.x</span><span class="s3">, </span><span class="s1">scale.y) 
+        </span><span class="s0"># rotate</span><span class="s1"> 
+        mat.rotate_by_vectors_update(forward</span><span class="s3">, </span><span class="s1">side) 
+        </span><span class="s0"># and translate</span><span class="s1"> 
+        mat.translate_update(pos.x</span><span class="s3">, </span><span class="s1">pos.y) 
+        </span><span class="s0"># now transform all the points (vertices)</span><span class="s1"> 
+        mat.transform_vector2d_list(wld_pts) 
+        </span><span class="s0"># done</span><span class="s1"> 
+        </span><span class="s3">return </span><span class="s1">wld_pts 
+ 
+    </span><span class="s3">def </span><span class="s1">transform_point(self</span><span class="s3">, </span><span class="s1">point</span><span class="s3">, </span><span class="s1">pos</span><span class="s3">, </span><span class="s1">forward</span><span class="s3">, </span><span class="s1">side): 
+        </span><span class="s2">''' Transform the given single point, using the provided position, 
+        and direction (forward and side unit vectors), to object world space. '''</span><span class="s1"> 
+        </span><span class="s0"># make a copy of the original point (so we don't trash it)</span><span class="s1"> 
+        wld_pt = point.copy() 
+        </span><span class="s0"># create a transformation matrix to perform the operations</span><span class="s1"> 
+        mat = Matrix33() 
+        </span><span class="s0"># rotate</span><span class="s1"> 
+        mat.rotate_by_vectors_update(forward</span><span class="s3">, </span><span class="s1">side) 
+        </span><span class="s0"># and translate</span><span class="s1"> 
+        mat.translate_update(pos.x</span><span class="s3">, </span><span class="s1">pos.y) 
+        </span><span class="s0"># now transform the point (in place)</span><span class="s1"> 
+        mat.transform_vector2d(wld_pt) 
+        </span><span class="s0"># done</span><span class="s1"> 
+        </span><span class="s3">return </span><span class="s1">wld_pt 
+ 
+ 
+</span><span class="s0"># WORLD -------------------------</span></pre>
+</body>
+</html>

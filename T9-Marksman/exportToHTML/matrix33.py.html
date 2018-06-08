@@ -1,0 +1,158 @@
+<html>
+<head>
+<title>matrix33.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(98,151,85); font-style: italic; }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(204,120,50); }
+.s3 { color: rgb(104,151,187); }
+.s4 { color: rgb(128,128,128); }
+.s5 { color: rgb(106,135,89); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+matrix33.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">'''3x3 matrix class for 2d operations on 2d points 
+ 
+Created for COS30002 AI for Games by Clinton Woodward cwoodward@swin.edu.au 
+Updated by Steve Dower 
+ 
+'''</span><span class="s1"> 
+ 
+</span><span class="s2">from </span><span class="s1">math </span><span class="s2">import </span><span class="s1">cos</span><span class="s2">, </span><span class="s1">sin 
+ 
+ 
+</span><span class="s2">class </span><span class="s1">Matrix33(object): 
+    </span><span class="s0">'''3x3 matrix for two-dimensional operations.'''</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">__init__(self</span><span class="s2">, </span><span class="s1">m=</span><span class="s2">None</span><span class="s1">): 
+        </span><span class="s2">if </span><span class="s1">isinstance(m</span><span class="s2">, </span><span class="s1">Matrix33): 
+            m = list(m._m) 
+ 
+        self._m = m </span><span class="s2">or </span><span class="s1">[</span><span class="s3">1.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">] 
+ 
+    </span><span class="s2">def </span><span class="s1">reset(self): 
+        self._m = [</span><span class="s3">1.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">] 
+ 
+    </span><span class="s2">def </span><span class="s1">translate(self</span><span class="s2">, </span><span class="s1">x</span><span class="s2">, </span><span class="s1">y): 
+        </span><span class="s0">'''Returns this matrix translated by x, y.'''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">self * Matrix33([</span><span class="s3">1.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s1">x</span><span class="s2">, </span><span class="s1">y</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">]) 
+ 
+    </span><span class="s2">def </span><span class="s1">translate_update(self</span><span class="s2">, </span><span class="s1">x</span><span class="s2">, </span><span class="s1">y): 
+        </span><span class="s0">'''Update self (matrix) with a translation amount of x,y'''</span><span class="s1"> 
+        self._fast_imul(Matrix33([</span><span class="s3">1.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s1">x</span><span class="s2">, </span><span class="s1">y</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">])) 
+ 
+    </span><span class="s2">def </span><span class="s1">scale(self</span><span class="s2">, </span><span class="s1">xscale</span><span class="s2">, </span><span class="s1">yscale): 
+        </span><span class="s0">'''Returns this matrix scaled by xscale and yscale'''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">self * Matrix33([xscale</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s1">yscale</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">]) 
+ 
+    </span><span class="s2">def </span><span class="s1">scale_update(self</span><span class="s2">, </span><span class="s1">xscale</span><span class="s2">, </span><span class="s1">yscale): 
+        </span><span class="s0">'''Update self with scale amounts of xscale and yscale'''</span><span class="s1"> 
+        self._fast_imul(Matrix33([xscale</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s1">yscale</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">])) 
+ 
+    </span><span class="s2">def </span><span class="s1">rotate(self</span><span class="s2">, </span><span class="s1">rads): 
+        </span><span class="s0">'''Returns this matrix rotated by rad (radians)'''</span><span class="s1"> 
+        sin_r = sin(rads) 
+        cos_r = cos(rads) 
+        </span><span class="s2">return </span><span class="s1">self * Matrix33([cos_r</span><span class="s2">, </span><span class="s1">sin_r</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s1">-sin_r</span><span class="s2">, </span><span class="s1">cos_r</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">]) 
+ 
+    </span><span class="s2">def </span><span class="s1">rotate_update(self</span><span class="s2">, </span><span class="s1">rads): 
+        </span><span class="s0">'''Update self with rotation amount of rad (radians)'''</span><span class="s1"> 
+        sin_r = sin(rads) 
+        cos_r = cos(rads) 
+        self._fast_imul(Matrix33([cos_r</span><span class="s2">, </span><span class="s1">sin_r</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s1">-sin_r</span><span class="s2">, </span><span class="s1">cos_r</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">])) 
+ 
+    </span><span class="s2">def </span><span class="s1">rotate_by_vectors(self</span><span class="s2">, </span><span class="s1">fwd</span><span class="s2">, </span><span class="s1">side): 
+        </span><span class="s0">''' Update self with rotation based on forward and side vectors.'''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">self * Matrix33([fwd.x</span><span class="s2">, </span><span class="s1">fwd.y</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s1">side.x</span><span class="s2">, </span><span class="s1">side.y</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">]) 
+ 
+    </span><span class="s2">def </span><span class="s1">rotate_by_vectors_update(self</span><span class="s2">, </span><span class="s1">fwd</span><span class="s2">, </span><span class="s1">side): 
+        </span><span class="s0">''' Update self with rotation based on forward and side vectors.'''</span><span class="s1"> 
+        self._fast_imul(Matrix33([fwd.x</span><span class="s2">, </span><span class="s1">fwd.y</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s1">side.x</span><span class="s2">, </span><span class="s1">side.y</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">0.</span><span class="s2">, </span><span class="s3">1.</span><span class="s1">])) 
+ 
+    </span><span class="s2">def </span><span class="s1">transform_vector2d_list(self</span><span class="s2">, </span><span class="s1">points): 
+        </span><span class="s0">''' Apply self as a transformation matrix to the provided collection 
+        of Vector2D points '''</span><span class="s1"> 
+        a11</span><span class="s2">, </span><span class="s1">a12</span><span class="s2">, </span><span class="s1">a13</span><span class="s2">, </span><span class="s1">a21</span><span class="s2">, </span><span class="s1">a22</span><span class="s2">, </span><span class="s1">a23</span><span class="s2">, </span><span class="s1">a31</span><span class="s2">, </span><span class="s1">a32</span><span class="s2">, </span><span class="s1">a33 = self._m 
+        </span><span class="s4"># apply self matrix as a transformation to each pt's coordinates</span><span class="s1"> 
+        </span><span class="s2">for </span><span class="s1">pt </span><span class="s2">in </span><span class="s1">points: 
+            tmp_x = a11*pt.x + a21*pt.y + a31 
+            tmp_y = a12*pt.x + a22*pt.y + a32 
+            pt.x = tmp_x 
+            pt.y = tmp_y 
+ 
+    </span><span class="s2">def </span><span class="s1">transform_vector2d(self</span><span class="s2">, </span><span class="s1">pt): 
+        </span><span class="s0">''' Apply self as a transformation matrix to a single point '''</span><span class="s1"> 
+        a11</span><span class="s2">, </span><span class="s1">a12</span><span class="s2">, </span><span class="s1">a13</span><span class="s2">, </span><span class="s1">a21</span><span class="s2">, </span><span class="s1">a22</span><span class="s2">, </span><span class="s1">a23</span><span class="s2">, </span><span class="s1">a31</span><span class="s2">, </span><span class="s1">a32</span><span class="s2">, </span><span class="s1">a33 = self._m 
+        </span><span class="s4"># apply self matrix as a transformation to pt's coordinates</span><span class="s1"> 
+        tmp_x = a11*pt.x + a21*pt.y + a31 
+        tmp_y = a12*pt.x + a22*pt.y + a32 
+        pt.x = tmp_x 
+        pt.y = tmp_y 
+ 
+    </span><span class="s2">def </span><span class="s1">__mul__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s4"># the self * rhs operator</span><span class="s1"> 
+        </span><span class="s0">''' 3x3 matrix matrix multiplication. Rarely used however...'''</span><span class="s1"> 
+        a11</span><span class="s2">, </span><span class="s1">a12</span><span class="s2">, </span><span class="s1">a13</span><span class="s2">,  </span><span class="s1">a21</span><span class="s2">, </span><span class="s1">a22</span><span class="s2">, </span><span class="s1">a23</span><span class="s2">,  </span><span class="s1">a31</span><span class="s2">, </span><span class="s1">a32</span><span class="s2">, </span><span class="s1">a33 = self._m 
+        b11</span><span class="s2">, </span><span class="s1">b12</span><span class="s2">, </span><span class="s1">b13</span><span class="s2">,  </span><span class="s1">b21</span><span class="s2">, </span><span class="s1">b22</span><span class="s2">, </span><span class="s1">b23</span><span class="s2">,  </span><span class="s1">b31</span><span class="s2">, </span><span class="s1">b32</span><span class="s2">, </span><span class="s1">b33 = rhs._m 
+ 
+        retm = [ 
+            a11*b11 + a12*b21 + a13*b31</span><span class="s2">,</span><span class="s1"> 
+            a11*b12 + a12*b22 + a13*b32</span><span class="s2">,</span><span class="s1"> 
+            a11*b13 + a12*b23 + a13*b33</span><span class="s2">,</span><span class="s1"> 
+ 
+            a21*b11 + a22*b21 + a23*b31</span><span class="s2">,</span><span class="s1"> 
+            a21*b12 + a22*b22 + a23*b32</span><span class="s2">,</span><span class="s1"> 
+            a21*b13 + a22*b23 + a23*b33</span><span class="s2">,</span><span class="s1"> 
+ 
+            a31*b11 + a32*b21 + a33*b31</span><span class="s2">,</span><span class="s1"> 
+            a31*b12 + a32*b22 + a33*b32</span><span class="s2">,</span><span class="s1"> 
+            a31*b13 + a32*b23 + a33*b33 
+        ] 
+ 
+        </span><span class="s2">return </span><span class="s1">Matrix33(retm) 
+ 
+    </span><span class="s2">def </span><span class="s1">__imul__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s4"># the *= operator</span><span class="s1"> 
+        </span><span class="s0">''' 3x3 matrix matrix multiplication result applied to self. '''</span><span class="s1"> 
+        a11</span><span class="s2">, </span><span class="s1">a12</span><span class="s2">, </span><span class="s1">a13</span><span class="s2">,  </span><span class="s1">a21</span><span class="s2">, </span><span class="s1">a22</span><span class="s2">, </span><span class="s1">a23</span><span class="s2">,  </span><span class="s1">a31</span><span class="s2">, </span><span class="s1">a32</span><span class="s2">, </span><span class="s1">a33 = self._m 
+        b11</span><span class="s2">, </span><span class="s1">b12</span><span class="s2">, </span><span class="s1">b13</span><span class="s2">,  </span><span class="s1">b21</span><span class="s2">, </span><span class="s1">b22</span><span class="s2">, </span><span class="s1">b23</span><span class="s2">,  </span><span class="s1">b31</span><span class="s2">, </span><span class="s1">b32</span><span class="s2">, </span><span class="s1">b33 = rhs._m 
+ 
+        self._m = [ 
+            a11*b11 + a12*b21 + a13*b31</span><span class="s2">,</span><span class="s1"> 
+            a11*b12 + a12*b22 + a13*b32</span><span class="s2">,</span><span class="s1"> 
+            a11*b13 + a12*b23 + a13*b33</span><span class="s2">,</span><span class="s1"> 
+ 
+            a21*b11 + a22*b21 + a23*b31</span><span class="s2">,</span><span class="s1"> 
+            a21*b12 + a22*b22 + a23*b32</span><span class="s2">,</span><span class="s1"> 
+            a21*b13 + a22*b23 + a23*b33</span><span class="s2">,</span><span class="s1"> 
+ 
+            a31*b11 + a32*b21 + a33*b31</span><span class="s2">,</span><span class="s1"> 
+            a31*b12 + a32*b22 + a33*b32</span><span class="s2">,</span><span class="s1"> 
+            a31*b13 + a32*b23 + a33*b33 
+        ] 
+ 
+    </span><span class="s2">def </span><span class="s1">_fast_imul(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s4"># the *= operator</span><span class="s1"> 
+        </span><span class="s0">''' Fast 3x3 matrix multiplication result applied to self. 
+            Because column 3 is always 0,0,1 for translate, scale and rotate 
+            we can reduce this operation for these cases.'''</span><span class="s1"> 
+        a11</span><span class="s2">, </span><span class="s1">a12</span><span class="s2">, </span><span class="s1">a13</span><span class="s2">,  </span><span class="s1">a21</span><span class="s2">, </span><span class="s1">a22</span><span class="s2">, </span><span class="s1">a23</span><span class="s2">,  </span><span class="s1">a31</span><span class="s2">, </span><span class="s1">a32</span><span class="s2">, </span><span class="s1">a33 = self._m 
+        </span><span class="s4">#         0.0             0.0             1.0</span><span class="s1"> 
+        b11</span><span class="s2">, </span><span class="s1">b12</span><span class="s2">, </span><span class="s1">b13</span><span class="s2">,  </span><span class="s1">b21</span><span class="s2">, </span><span class="s1">b22</span><span class="s2">, </span><span class="s1">b23</span><span class="s2">,  </span><span class="s1">b31</span><span class="s2">, </span><span class="s1">b32</span><span class="s2">, </span><span class="s1">b33 = rhs._m 
+ 
+        self._m = [ 
+            a11*b11 + a12*b21</span><span class="s2">, </span><span class="s1">a11*b12 + a12*b22</span><span class="s2">, </span><span class="s3">0</span><span class="s2">,</span><span class="s1"> 
+            a21*b11 + a22*b21</span><span class="s2">, </span><span class="s1">a21*b12 + a22*b22</span><span class="s2">, </span><span class="s3">0</span><span class="s2">,</span><span class="s1"> 
+            a31*b11 + a32*b21 + b31</span><span class="s2">, </span><span class="s1">a31*b12 + a32*b22 + b32</span><span class="s2">, </span><span class="s3">1</span><span class="s1"> 
+        ] 
+ 
+    </span><span class="s2">def </span><span class="s1">__str__(self): 
+        </span><span class="s2">return </span><span class="s5">'[%5.1f, %5.1f, %5.1f]</span><span class="s2">\n</span><span class="s5">[%5.1f, %5.1f, %5.1f]</span><span class="s2">\n</span><span class="s5">[%5.1f, %5.1f, %5.1f]' </span><span class="s1">% tuple(self._m) 
+</span></pre>
+</body>
+</html>

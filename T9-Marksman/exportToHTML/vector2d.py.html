@@ -1,0 +1,190 @@
+<html>
+<head>
+<title>vector2d.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(98,151,85); font-style: italic; }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(204,120,50); }
+.s3 { color: rgb(128,128,128); }
+.s4 { color: rgb(104,151,187); }
+.s5 { color: rgb(106,135,89); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+vector2d.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">'''2D Vector with related methods 
+ 
+Created for COS30002 AI for Games by Clinton Woodward cwoodward@swin.edu.au 
+Updated by Steve Dower 
+'''</span><span class="s1"> 
+ 
+</span><span class="s2">from </span><span class="s1">math </span><span class="s2">import </span><span class="s1">sqrt 
+</span><span class="s2">from </span><span class="s1">point2d </span><span class="s2">import </span><span class="s1">Point2D  </span><span class="s3"># Not used here, but easy way to expose it</span><span class="s1"> 
+ 
+MIN_FLOAT = </span><span class="s4">1e-300</span><span class="s1"> 
+ 
+ 
+</span><span class="s2">def </span><span class="s1">is_equal(a</span><span class="s2">, </span><span class="s1">b): 
+    </span><span class="s2">return </span><span class="s1">abs(a-b) &lt; </span><span class="s4">1e-12</span><span class="s1"> 
+ 
+</span><span class="s3"># Not needed, but fyi ...</span><span class="s1"> 
+</span><span class="s3">#def PointToVector2D(pt):</span><span class="s1"> 
+</span><span class="s3">#    return Vector2D(pt.x, pt.y)</span><span class="s1"> 
+</span><span class="s3">#</span><span class="s1"> 
+</span><span class="s3">#def Vector2DToPoint(v):</span><span class="s1"> 
+</span><span class="s3">#    return Point2D(v.x, v.y)</span><span class="s1"> 
+ 
+ 
+</span><span class="s2">class </span><span class="s1">Vector2D(object): 
+    __slots__ = (</span><span class="s5">'x'</span><span class="s2">, </span><span class="s5">'y'</span><span class="s1">) 
+ 
+    </span><span class="s2">def </span><span class="s1">__init__(self</span><span class="s2">, </span><span class="s1">x=</span><span class="s4">0.</span><span class="s2">, </span><span class="s1">y=</span><span class="s4">0.</span><span class="s1">): 
+        self.x = x 
+        self.y = y 
+ 
+    </span><span class="s2">def </span><span class="s1">zero(self): 
+        </span><span class="s0">''' set x and y to zero '''</span><span class="s1"> 
+        self.x = </span><span class="s4">0.</span><span class="s1"> 
+        self.y = </span><span class="s4">0.</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">is_zero(self): 
+        </span><span class="s0">''' return true if both x and y are zero '''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">(self.x**</span><span class="s4">2 </span><span class="s1">+ self.y**</span><span class="s4">2</span><span class="s1">) &lt; MIN_FLOAT 
+ 
+    </span><span class="s2">def </span><span class="s1">length(self): 
+        </span><span class="s0">''' return the length of the vector '''</span><span class="s1"> 
+        x = self.x 
+        y = self.y 
+        </span><span class="s2">return </span><span class="s1">sqrt(x*x + y*y) 
+ 
+    </span><span class="s2">def </span><span class="s1">length_sq(self): 
+        </span><span class="s0">''' return the squared length (avoid sqrt()) '''</span><span class="s1"> 
+        x = self.x 
+        y = self.y 
+        </span><span class="s2">return </span><span class="s1">x*x + y*y 
+ 
+    </span><span class="s2">def </span><span class="s1">normalise(self): 
+        </span><span class="s0">''' normalise self to a unit vector of length = 1.0 '''</span><span class="s1"> 
+        x = self.x 
+        y = self.y 
+        l = sqrt(x*x + y*y) 
+        </span><span class="s2">try</span><span class="s1">: 
+            self.x = x/l 
+            self.y = y/l 
+        </span><span class="s2">except </span><span class="s1">ZeroDivisionError: 
+            self.x = </span><span class="s4">0.</span><span class="s1"> 
+            self.y = </span><span class="s4">0.</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">self 
+ 
+    </span><span class="s2">def </span><span class="s1">get_normalised(self): 
+        </span><span class="s0">''' return a normalised copy of self '''</span><span class="s1"> 
+        result = self.copy() 
+        result.normalise() 
+        </span><span class="s2">return </span><span class="s1">result 
+ 
+    </span><span class="s2">def </span><span class="s1">dot(self</span><span class="s2">, </span><span class="s1">v2): 
+        </span><span class="s0">''' The dot (inner) product of self and v2 vector '''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">self.x*v2.x + self.y*v2.y 
+ 
+    </span><span class="s2">def </span><span class="s1">sign(self</span><span class="s2">, </span><span class="s1">v2): 
+        </span><span class="s0">''' return +1 if v2 is clockwise of self. 
+            return -1 if v2 is anti-clockwise of self 
+            Assumes Y axis points down and X points right '''</span><span class="s1"> 
+        </span><span class="s2">if </span><span class="s1">self.y*v2.x &gt; self.x*v2.y: 
+            </span><span class="s2">return </span><span class="s1">-</span><span class="s4">1</span><span class="s1"> 
+        </span><span class="s2">else</span><span class="s1">: 
+            </span><span class="s2">return </span><span class="s4">1</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">perp(self): 
+        </span><span class="s0">''' return a vector perpendicular to self. '''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(-self.y</span><span class="s2">, </span><span class="s1">self.x) 
+ 
+    </span><span class="s2">def </span><span class="s1">truncate(self</span><span class="s2">, </span><span class="s1">maxlength): 
+        </span><span class="s0">''' limit the length (scale x and y) to maxlength '''</span><span class="s1"> 
+        </span><span class="s2">if </span><span class="s1">self.length() &gt; maxlength: 
+            self.normalise()  </span><span class="s3"># unit vector length = 1.0</span><span class="s1"> 
+            self *= maxlength  </span><span class="s3"># so length is 1.0 * maxlength</span><span class="s1"> 
+ 
+    </span><span class="s2">def </span><span class="s1">distance(self</span><span class="s2">, </span><span class="s1">v2): 
+        </span><span class="s0">''' the distance between self and v2 vector '''</span><span class="s1"> 
+        dx = v2.x - self.x 
+        dy = v2.y - self.y 
+        </span><span class="s2">return </span><span class="s1">sqrt(dx*dx + dy*dy) 
+ 
+    </span><span class="s2">def </span><span class="s1">distance_sq(self</span><span class="s2">, </span><span class="s1">v2): 
+        </span><span class="s0">''' the squared distance between self and v2 vector '''</span><span class="s1"> 
+        dx = v2.x - self.x 
+        dy = v2.y - self.y 
+        </span><span class="s2">return </span><span class="s1">dx*dx + dy*dy 
+ 
+    </span><span class="s2">def </span><span class="s1">reflect(self</span><span class="s2">, </span><span class="s1">norm): 
+        </span><span class="s0">''' Reflect self around the norm vector provided. '''</span><span class="s1"> 
+        </span><span class="s3"># eg the path of a ball reflected off a wall</span><span class="s1"> 
+        self += </span><span class="s4">2.0 </span><span class="s1">* self.dot(norm) * norm.get_reverse() 
+ 
+    </span><span class="s2">def </span><span class="s1">get_reverse(self): 
+        </span><span class="s0">''' return a new vector that is the reverse of self. '''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(-self.x</span><span class="s2">, </span><span class="s1">-self.y) 
+ 
+    </span><span class="s2">def </span><span class="s1">__neg__(self):  </span><span class="s3"># -</span><span class="s1"> 
+        </span><span class="s0">''' get_reverse(), but using - operator based instead. '''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(-self.x</span><span class="s2">, </span><span class="s1">-self.y) 
+ 
+    </span><span class="s2">def </span><span class="s1">copy(self): 
+        </span><span class="s0">''' Simple copy Vector2D with self values '''</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(self.x</span><span class="s2">, </span><span class="s1">self.y) 
+ 
+    </span><span class="s2">def </span><span class="s1">__iadd__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># +=</span><span class="s1"> 
+        self.x += rhs.x 
+        self.y += rhs.y 
+        </span><span class="s2">return </span><span class="s1">self 
+ 
+    </span><span class="s2">def </span><span class="s1">__isub__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># -=</span><span class="s1"> 
+        self.x -= rhs.x 
+        self.y -= rhs.y 
+        </span><span class="s2">return </span><span class="s1">self 
+ 
+    </span><span class="s2">def </span><span class="s1">__imul__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># *=</span><span class="s1"> 
+        self.x *= rhs 
+        self.y *= rhs 
+        </span><span class="s2">return </span><span class="s1">self 
+ 
+    </span><span class="s2">def </span><span class="s1">__itruediv__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># /=</span><span class="s1"> 
+        self.x /= rhs 
+        self.y /= rhs 
+        </span><span class="s2">return </span><span class="s1">self 
+ 
+    </span><span class="s2">def </span><span class="s1">__eq__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># ==</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">is_equal(self.x</span><span class="s2">, </span><span class="s1">rhs.x) </span><span class="s2">and </span><span class="s1">is_equal(self.y</span><span class="s2">, </span><span class="s1">rhs.y) 
+ 
+    </span><span class="s2">def </span><span class="s1">__ne__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># !=</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">(self.x != rhs.x) </span><span class="s2">or </span><span class="s1">(self.y != rhs.y) 
+ 
+    </span><span class="s2">def </span><span class="s1">__add__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># self + rhs</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(self.x+rhs.x</span><span class="s2">, </span><span class="s1">self.y+rhs.y) 
+ 
+    </span><span class="s2">def </span><span class="s1">__sub__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># self - rhs</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(self.x-rhs.x</span><span class="s2">, </span><span class="s1">self.y-rhs.y) 
+ 
+    </span><span class="s2">def </span><span class="s1">__mul__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># self * rhs (scalar)</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(self.x*rhs</span><span class="s2">, </span><span class="s1">self.y*rhs) 
+    </span><span class="s2">def </span><span class="s1">__rmul__(self</span><span class="s2">, </span><span class="s1">lhs):  </span><span class="s3"># lhs (scalar) * self</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(self.x*lhs</span><span class="s2">, </span><span class="s1">self.y*lhs) 
+ 
+    </span><span class="s2">def </span><span class="s1">__truediv__(self</span><span class="s2">, </span><span class="s1">rhs):  </span><span class="s3"># self / rhs (scalar)</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(self.x/rhs</span><span class="s2">, </span><span class="s1">self.y/rhs) 
+    </span><span class="s2">def </span><span class="s1">__rtruediv__(self</span><span class="s2">, </span><span class="s1">lhs):  </span><span class="s3"># lhs (scalar) / self</span><span class="s1"> 
+        </span><span class="s2">return </span><span class="s1">Vector2D(lhs/self.x</span><span class="s2">, </span><span class="s1">lhs/self.y) 
+ 
+    </span><span class="s2">def </span><span class="s1">__str__(self): 
+        </span><span class="s2">return </span><span class="s5">'[%7.2f, %7.2f]' </span><span class="s1">% (self.x</span><span class="s2">, </span><span class="s1">self.y) 
+</span></pre>
+</body>
+</html>

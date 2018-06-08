@@ -1,0 +1,140 @@
+<html>
+<head>
+<title>Hitpoint.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(98,151,85); font-style: italic; }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(204,120,50); }
+.s3 { color: rgb(104,151,187); }
+.s4 { color: rgb(106,135,89); }
+.s5 { color: rgb(128,128,128); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Hitpoint.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">'''An agent with Seek, Flee, Arrive, Pursuit behaviours 
+ 
+Created for COS30002 AI for Games by Clinton Woodward cwoodward@swin.edu.au 
+ 
+'''</span><span class="s1"> 
+ 
+</span><span class="s2">from </span><span class="s1">vector2d </span><span class="s2">import </span><span class="s1">Vector2D 
+</span><span class="s2">from </span><span class="s1">vector2d </span><span class="s2">import </span><span class="s1">Point2D 
+</span><span class="s2">from </span><span class="s1">graphics </span><span class="s2">import </span><span class="s1">egi</span><span class="s2">, </span><span class="s1">KEY 
+</span><span class="s2">from </span><span class="s1">math </span><span class="s2">import </span><span class="s1">sin</span><span class="s2">, </span><span class="s1">cos</span><span class="s2">, </span><span class="s1">radians 
+</span><span class="s2">from </span><span class="s1">random </span><span class="s2">import </span><span class="s1">random</span><span class="s2">, </span><span class="s1">uniform 
+</span><span class="s2">from </span><span class="s1">path </span><span class="s2">import </span><span class="s1">Path 
+ 
+ 
+ 
+</span><span class="s2">class </span><span class="s1">Hitpoint(object): 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">__init__(self</span><span class="s2">, </span><span class="s1">world=</span><span class="s2">None, </span><span class="s1">scale=</span><span class="s3">30.0</span><span class="s2">, </span><span class="s1">mass=</span><span class="s3">1.0</span><span class="s2">, </span><span class="s1">mode=</span><span class="s4">'follow_path'</span><span class="s1">): 
+        self.world = world 
+        self.mode = mode 
+ 
+        dir = radians(random() * </span><span class="s3">360</span><span class="s1">) 
+        self.pos = Vector2D(world.cx - </span><span class="s3">50</span><span class="s2">, </span><span class="s1">world.cy / </span><span class="s3">2</span><span class="s1">) 
+        self.vel = Vector2D(</span><span class="s3">0</span><span class="s2">,</span><span class="s3">0</span><span class="s1">) 
+        self.heading = Vector2D(sin(dir)</span><span class="s2">, </span><span class="s1">cos(dir)) 
+        self.side = self.heading.perp() 
+        self.scale = Vector2D(scale</span><span class="s2">, </span><span class="s1">scale)  </span><span class="s5"># easy scaling of agent size</span><span class="s1"> 
+        self.force = Vector2D()  </span><span class="s5"># current steering force</span><span class="s1"> 
+        self.accel = Vector2D()  </span><span class="s5"># current acceleration due to force</span><span class="s1"> 
+        self.mass = mass 
+ 
+        </span><span class="s5">### path to follow?</span><span class="s1"> 
+        </span><span class="s5"># self.path = ??</span><span class="s1"> 
+        self.path = Path() 
+        self.path.create_hitpoint_path()  </span><span class="s5"># &lt;-- Doesn’t exist yet but you’ll create it</span><span class="s1"> 
+        self.waypoint_threshold = </span><span class="s3">10.0  </span><span class="s5"># &lt;-- Work out a value for this as you test!</span><span class="s1"> 
+ 
+        self.ishit = </span><span class="s2">False</span><span class="s1"> 
+ 
+        self.max_force = </span><span class="s3">500.0</span><span class="s1"> 
+        </span><span class="s5"># limits?</span><span class="s1"> 
+        self.max_speed = </span><span class="s3">50.0</span><span class="s1"> 
+        </span><span class="s5">## max_force ??</span><span class="s1"> 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">collidecircle(self): 
+        egi.circle(self.pos</span><span class="s2">, </span><span class="s3">20</span><span class="s2">, False</span><span class="s1">) 
+ 
+    </span><span class="s2">def </span><span class="s1">calculate(self</span><span class="s2">, </span><span class="s1">delta): 
+ 
+        mode = self.mode 
+        </span><span class="s2">if </span><span class="s1">mode == </span><span class="s4">'follow_path'</span><span class="s1">: 
+            force = self.follow_path(self.path.current_pt()</span><span class="s2">, </span><span class="s4">'fast'</span><span class="s1">) 
+        </span><span class="s2">else</span><span class="s1">: 
+            force = Vector2D() 
+            self.force = force 
+ 
+        </span><span class="s2">return </span><span class="s1">force 
+ 
+    </span><span class="s2">def </span><span class="s1">update(self</span><span class="s2">, </span><span class="s1">delta): 
+ 
+        force = self.calculate(delta) 
+        force.truncate(self.max_force) 
+ 
+        self.accel = force / self.mass 
+        self.vel += self.accel * delta 
+        </span><span class="s5"># update position</span><span class="s1"> 
+        self.pos += self.vel * delta 
+        </span><span class="s2">if </span><span class="s1">self.vel.length_sq() &gt; </span><span class="s3">0.00000001</span><span class="s1">: 
+            self.heading = self.vel.get_normalised() 
+            self.side = self.heading.perp() 
+ 
+        self.world.wrap_around(self.pos) 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">render(self</span><span class="s2">, </span><span class="s1">color=</span><span class="s2">None</span><span class="s1">): 
+        </span><span class="s0">''' Draw the triangle agent with color'''</span><span class="s1"> 
+        </span><span class="s5"># draw the path if it exists and the mode is follow</span><span class="s1"> 
+        </span><span class="s2">if </span><span class="s1">self.mode == </span><span class="s4">'follow_path'</span><span class="s1">: 
+            </span><span class="s5">## ...</span><span class="s1"> 
+            self.path.render() 
+            </span><span class="s2">pass</span><span class="s1"> 
+        </span><span class="s2">if </span><span class="s1">self.ishit: 
+            egi.red_pen() 
+        </span><span class="s2">else</span><span class="s1">: 
+            egi.blue_pen() 
+        </span><span class="s5"># draw the ship</span><span class="s1"> 
+ 
+        egi.circle(self.pos</span><span class="s2">, </span><span class="s3">20</span><span class="s2">, True</span><span class="s1">) 
+ 
+        self.ishit = </span><span class="s2">False</span><span class="s1"> 
+ 
+ 
+    </span><span class="s5"># --------------------------------------------------------------------------</span><span class="s1"> 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">seek(self</span><span class="s2">, </span><span class="s1">target_pos): 
+        </span><span class="s0">''' move towards target position '''</span><span class="s1"> 
+        desired_vel = (target_pos - self.pos).normalise() * self.max_speed 
+        </span><span class="s2">return </span><span class="s1">(desired_vel - self.vel) 
+ 
+ 
+ 
+ 
+    </span><span class="s2">def </span><span class="s1">follow_path(self</span><span class="s2">, </span><span class="s1">waypoint_pos</span><span class="s2">, </span><span class="s1">speed): 
+        </span><span class="s2">if </span><span class="s1">self.path.is_finished(): 
+            </span><span class="s2">return </span><span class="s1">self.arrive(self.path.current_pt()</span><span class="s2">, </span><span class="s1">speed) 
+        </span><span class="s2">else</span><span class="s1">: 
+            to_target = self.path.current_pt() - self.pos 
+            dist = to_target.length() 
+            </span><span class="s2">if </span><span class="s1">dist &lt; self.waypoint_threshold: 
+                print(</span><span class="s4">&quot;hi there&quot;</span><span class="s1">) 
+                self.path.inc_current_pt() 
+            </span><span class="s2">return </span><span class="s1">self.seek(self.path.current_pt()) 
+ 
+</span></pre>
+</body>
+</html>

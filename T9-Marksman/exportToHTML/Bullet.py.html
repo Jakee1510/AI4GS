@@ -1,0 +1,84 @@
+<html>
+<head>
+<title>Bullet.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(106,135,89); }
+.s3 { color: rgb(104,151,187); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Bullet.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">from </span><span class="s1">vector2d </span><span class="s0">import </span><span class="s1">Vector2D 
+</span><span class="s0">from </span><span class="s1">vector2d </span><span class="s0">import </span><span class="s1">Point2D 
+</span><span class="s0">from </span><span class="s1">graphics </span><span class="s0">import </span><span class="s1">egi</span><span class="s0">, </span><span class="s1">KEY 
+</span><span class="s0">from </span><span class="s1">math </span><span class="s0">import </span><span class="s1">sin</span><span class="s0">, </span><span class="s1">cos</span><span class="s0">, </span><span class="s1">radians</span><span class="s0">, </span><span class="s1">degrees</span><span class="s0">, </span><span class="s1">asin 
+</span><span class="s0">from </span><span class="s1">random </span><span class="s0">import </span><span class="s1">random</span><span class="s0">, </span><span class="s1">randrange</span><span class="s0">, </span><span class="s1">uniform 
+</span><span class="s0">from </span><span class="s1">path </span><span class="s0">import </span><span class="s1">Path 
+ 
+ 
+</span><span class="s0">class </span><span class="s1">Bullet(object): 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">,</span><span class="s1">world=</span><span class="s0">None, </span><span class="s1">target=</span><span class="s0">None, </span><span class="s1">marksman=</span><span class="s0">None, </span><span class="s1">mode = </span><span class="s2">'Rocket'</span><span class="s1">): 
+        self.world = world 
+ 
+        self.pos = marksman 
+        self.targ = target 
+ 
+        self.dir = (self.targ - self.pos).normalise() 
+ 
+        self.mode = mode 
+        self.speed = </span><span class="s3">1</span><span class="s1"> 
+ 
+        </span><span class="s0">if </span><span class="s1">self.mode == </span><span class="s2">'rifle'</span><span class="s1">: 
+            self.speed = </span><span class="s3">30</span><span class="s1">*</span><span class="s3">30</span><span class="s1"> 
+ 
+        </span><span class="s0">elif </span><span class="s1">self.mode == </span><span class="s2">'rocket'</span><span class="s1">: 
+            self.speed = </span><span class="s3">5 </span><span class="s1">* </span><span class="s3">30</span><span class="s1"> 
+ 
+        </span><span class="s0">elif </span><span class="s1">self.mode == </span><span class="s2">'handgun'</span><span class="s1">: 
+            self.speed = </span><span class="s3">30 </span><span class="s1">* </span><span class="s3">30</span><span class="s1"> 
+ 
+ 
+        </span><span class="s0">elif </span><span class="s1">self.mode == </span><span class="s2">'grenade'</span><span class="s1">: 
+            self.speed = </span><span class="s3">5 </span><span class="s1">* </span><span class="s3">30</span><span class="s1"> 
+        </span><span class="s0">else</span><span class="s1">: 
+            self.speed = </span><span class="s3">0.0</span><span class="s1"> 
+ 
+ 
+        self.vel = self.dir * self.speed 
+ 
+ 
+ 
+        self.visible = </span><span class="s0">True</span><span class="s1"> 
+ 
+    </span><span class="s0">def </span><span class="s1">update(self</span><span class="s0">,</span><span class="s1">delta): 
+        self.checkcollision() 
+        self.pos += self.vel * delta 
+ 
+    </span><span class="s0">def </span><span class="s1">render(self): 
+        </span><span class="s0">if </span><span class="s1">self.visible: 
+            egi.green_pen() 
+            egi.circle(self.pos</span><span class="s0">, </span><span class="s3">3</span><span class="s1">) 
+ 
+    </span><span class="s0">def </span><span class="s1">checkcollision(self): 
+ 
+        to_target = self.world.hitpoint.pos - self.pos 
+        panic_range = </span><span class="s3">25</span><span class="s1"> 
+        dist = to_target.length() 
+        </span><span class="s0">if </span><span class="s1">dist &lt; panic_range: 
+            self.visible = </span><span class="s0">False</span><span class="s1"> 
+            self.world.hitpoint.ishit = </span><span class="s0">True</span><span class="s1"> 
+ 
+</span></pre>
+</body>
+</html>
